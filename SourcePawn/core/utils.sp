@@ -1,19 +1,39 @@
-bool UTIL_RegItemCategory(const char[] type, bool equip, Fcuntion inventory, Function preview)
+/******************************************************************/
+/*                                                                */
+/*                  MagicGirl.NET Shop System                     */
+/*                                                                */
+/*                                                                */
+/*  File:          utils.sp                                       */
+/*  Description:   A new Shop system for source game.             */
+/*                                                                */
+/*                                                                */
+/*  Copyright (C) 2018  Kyle                                      */
+/*  2017/02/01 11:37:14                                           */
+/*                                                                */
+/*  This code is licensed under the Apache License.               */
+/*                                                                */
+/******************************************************************/
+
+
+int UTIL_RegItemCategory(const char[] type, bool equip, Handle plugin, Function inventory)
 {
     int index = UTIL_FindCategoryByType(type);
 
     if(index != -1)
-        return true;
+        return index;
 
     index = g_iCategories;
     
     strcopy(g_Category[index][szType], 32, type);
     g_Category[index][bEquipable] = equip;
     g_Category[index][hPlugin] = plugin;
-    g_Category[index][fnMenuInventory] = inventory;
-    g_Category[index][fnMenuPreview] = preview;
+    g_Category[index][fnMenu] = inventory;
 
     g_iCategories++;
+
+    UTIL_RefreshItem();
+
+    return index;
 }
 
 int UTIL_FindCategoryByType(const char[] type)
@@ -47,8 +67,8 @@ bool UTIL_HasClientItem(int client, const char[] uniqueId)
     
     if(g_Items[itemid][szPersonalId][0] != '\0')
     {
-        char m_szUserId[12];
-        IntToString(g_ClientData[client][iUid], m_szUserId, 12);
+        char m_szUserId[16];
+        FormatEx(m_szUserId, 16, "uid%dX", g_ClientData[client][iUid]);
         return (StrContains(g_Items[itemid][szPersonalId], m_szUserId) != -1);
     }
     
@@ -131,7 +151,7 @@ void UTIL_SQLNoCallback(const char[] m_szQuery, int maxLen)
     g_MySQL.Query(QueryNoCallback, m_szQuery, pack);
 }
 
-void UTIL_BuyItem(int client, int cost, const char[] unique, Handle plugin, Fcuntion callback)
+void UTIL_BuyItem(int client, int cost, const char[] unique, Handle plugin, Function callback)
 {
     if(!g_ClientData[client][bLoaded])
         return;
@@ -160,7 +180,7 @@ void UTIL_BuyItem(int client, int cost, const char[] unique, Handle plugin, Fcun
     pack.Reset();
     
     char m_szQuery[256];
-    FormatEx(m_szQuery, 256, "CALL `shop_buyItem` (%d, '%s', %d, %d, 'Purchase %s.%s');", g_ClientData[client][iUid], unique, cost, length != 0 ? GetTime()+length : 0, g_Category[g_Items[itemid][iTypeIndex]][szType], g_Items[itemid][szShrotName]);
+    FormatEx(m_szQuery, 256, "CALL `shop_buyItem` (%d, '%s', %d, %d, 'Purchase %s.%s');", g_ClientData[client][iUid], unique, cost, length != 0 ? GetTime()+length : 0, g_Category[g_Items[itemid][iCategory]][szType], g_Items[itemid][szShortName]);
     g_MySQL.Query(BuyItemCallback, m_szQuery, pack, DBPrio_High);
 }
 
@@ -188,7 +208,7 @@ void UTIL_SellItem(int client, const char[] unique, Handle plugin, Function call
     if(left == -1)
         return;
     
-    int earn = UTIL_SellingForEarning(itemid, length, left, cost);
+    int earn = UTIL_SellingForEarning(length, left, cost);
     if(earn == -1)
         return;
     
@@ -205,14 +225,14 @@ void UTIL_SellItem(int client, const char[] unique, Handle plugin, Function call
 
     // sql PROCEDURE
     char m_szQuery[256];
-    FormatEx(m_szQuery, 256, "CALL `shop_sellItem` (%d, %d, %d, 'sell %s.%s');", g_ClientData[client][iUid], dbIndex, earn, g_Category[g_Items[itemid][iTypeIndex]][szType], g_Items[itemid][szShrotName]);
+    FormatEx(m_szQuery, 256, "CALL `shop_sellItem` (%d, %d, %d, 'sell %s.%s');", g_ClientData[client][iUid], dbIndex, earn, g_Category[g_Items[itemid][iCategory]][szType], g_Items[itemid][szShortName]);
     g_MySQL.Query(SellItemCallback, m_szQuery, pack, DBPrio_High);
 }
 
 
 bool UTIL_IsItemFreeForAll(int itemid)
 {
-    return (g_Items[itemid][bBuyable] && g_Items[itemid][iPrice][0] == 0 && g_Items[itemid][iPrice][1] == 0 && g_Items[itemid][iPrice][2] == 0 && g_Items[itemid][iPrice][3] == 0)
+    return (g_Items[itemid][bBuyable] && g_Items[itemid][iPrice][0] == 0 && g_Items[itemid][iPrice][1] == 0 && g_Items[itemid][iPrice][2] == 0 && g_Items[itemid][iPrice][3] == 0);
 }
 
 bool UTIL_AllowItemForSelling(int itemid)
@@ -261,16 +281,7 @@ int UTIL_GetItemRemainingTime(int client, int itemid)
     return -1;
 }
 
-int UTIL_GetCostofPurchase(int client, int itemid)
-{
-    for(int i = 0; i < g_ClientData[client][iItems]; ++i)
-        if(g_ClientItem[client][i][iItemIndex] == itemid)
-            return g_ClientItem[client][i][iCost];
-
-    return -1;
-}
-
-int UTIL_SellingForEarning(int itemid, int length, int left, int cost)
+int UTIL_SellingForEarning(int length, int left, int cost)
 {
     if(left == 0)
         return RoundToFloor(cost * 0.6);
@@ -287,4 +298,24 @@ int UTIL_GetClientItemDbIndex(int client, int itemid)
             return g_ClientItem[client][i][iDbIndex];
         
     return -1;
+}
+
+void UTIL_RefreshItem()
+{
+    for(int item = 0; item < g_iItems; ++item)
+        g_Items[item][iCategory] = UTIL_FindCategoryByType(g_Items[item][szCategory]);
+}
+
+void Chat(int client, const char[] buffer, any ...)
+{
+    char vf[256];
+    VFormat(vf, 256, buffer, 3);
+    PrintToChat(client, "[\x04Shop\x01]   %s", vf);
+}
+
+stock void ChatAll(const char[] buffer, any ...)
+{
+    char vf[256];
+    VFormat(vf, 256, buffer, 2);
+    PrintToChatAll("[\x04Shop\x01]   %s", vf);
 }

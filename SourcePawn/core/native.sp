@@ -1,3 +1,20 @@
+/******************************************************************/
+/*                                                                */
+/*                  MagicGirl.NET Shop System                     */
+/*                                                                */
+/*                                                                */
+/*  File:          native.sp                                      */
+/*  Description:   A new Shop system for source game.             */
+/*                                                                */
+/*                                                                */
+/*  Copyright (C) 2018  Kyle                                      */
+/*  2017/02/01 11:37:14                                           */
+/*                                                                */
+/*  This code is licensed under the Apache License.               */
+/*                                                                */
+/******************************************************************/
+
+
 void Native_AskPluginLoad2()
 {
     //global
@@ -16,9 +33,11 @@ void Native_AskPluginLoad2()
     
     CreateNative("MG_Shop_ClientBuyItem",               Native_ClientBuyItem);
     CreateNative("MG_Shop_ClientSellItem",              Native_ClientSellItem);
-    CreateNative("MG_Shop_ClientGiftItem",              Native_ClientGiftItem);
+    //CreateNative("MG_Shop_ClientGiftItem",              Native_ClientGiftItem);
 
     //menu
+    CreateNative("MG_Shop_BuyItemMenu",                 Native_BuyItemMenu);
+    CreateNative("MG_Shop_DisplayPreviousMenu",         Native_DisplayPreviousMenu);
 }
 
 public int Native_RegItemCategory(Handle plugin, int numParams)
@@ -27,7 +46,7 @@ public int Native_RegItemCategory(Handle plugin, int numParams)
     if(GetNativeString(1, m_szType, 32) != SP_ERROR_NONE)
         return false;
 
-    return UTIL_RegItemCategory(m_szType, GetNativeCell(2), GetNativeFunction(3), GetNativeFunction(4));
+    return UTIL_RegItemCategory(m_szType, GetNativeCell(2), plugin, GetNativeFunction(3));
 }
 
 public int Native_GetItemIndex(Handle plugin, int numParams)
@@ -129,12 +148,12 @@ public int Native_ClientCostMoney(Handle plugin, int numParams)
     int cost = GetNativeCell(2);
     if(cost > g_ClientData[client][iMoney])
         return false;
-    
+
     char reason[128];
     if(GetNativeString(3, reason, 128) != SP_ERROR_NONE)
         return false;
 
-    return UTIL_CostMoney(client, GetNativeCell(2), reason);
+    return UTIL_CostMoney(client, cost, reason);
 }
 
 public int Native_ClientBuyItem(Handle plugin, int numParams)
@@ -158,4 +177,23 @@ public int Native_ClientSellItem(Handle plugin, int numParams)
         return;
 
     UTIL_SellItem(client, unique, plugin, GetNativeFunction(3));
+}
+
+public int Native_BuyItemMenu(Handle plugin, int numParams)
+{
+    int client = GetNativeCell(1);
+    
+    if(!g_ClientData[client][bLoaded])
+        return;
+    
+    char unique[32];
+    if(GetNativeString(2, unique, 32) != SP_ERROR_NONE)
+        return;
+    
+    Chat(client, "暂时不开放购买功能...");
+}
+
+public int Native_DisplayPreviousMenu(Handle plugin, int numParams)
+{
+    DisplayPreviousMenu(GetNativeCell(1));
 }

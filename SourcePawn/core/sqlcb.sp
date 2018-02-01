@@ -1,3 +1,19 @@
+/******************************************************************/
+/*                                                                */
+/*                  MagicGirl.NET Shop System                     */
+/*                                                                */
+/*                                                                */
+/*  File:          sqlcb.sp                                       */
+/*  Description:   A new Shop system for source game.             */
+/*                                                                */
+/*                                                                */
+/*  Copyright (C) 2018  Kyle                                      */
+/*  2017/02/01 11:37:14                                           */
+/*                                                                */
+/*  This code is licensed under the Apache License.               */
+/*                                                                */
+/******************************************************************/
+
 
 public void LoadClientCallback(Database db, DBResultSet results, const char[] error, int uid)
 {
@@ -12,13 +28,12 @@ public void LoadClientCallback(Database db, DBResultSet results, const char[] er
         return;
     }
 
-    if(results.RowCount <= 0 || results.FetchRow())
+    if(results.RowCount <= 0 || !results.FetchRow())
     {
         KickClient(client, "系统无法获取您的数据");
         return;
     }
 
-    g_ClientData[client][bLoaded] = true;
     g_ClientData[client][iUid]    = results.FetchInt(0);
     g_ClientData[client][iMoney]  = results.FetchInt(1);
     g_ClientData[client][bVip]    = (results.FetchInt(2) == 1);
@@ -40,6 +55,9 @@ public void LoadInventoryCallback(Database db, DBResultSet results, const char[]
         CreateTimer(5.0, Timer_ReAuthorize, client, TIMER_FLAG_NO_MAPCHANGE);
         return;
     }
+    
+    g_ClientData[client][bLoaded] = true;
+    g_ClientData[client][hTimer]  = CreateTimer(120.0, Timer_EarnMoney, client, TIMER_REPEAT);
 
     if(results.RowCount <= 0)
         return;
@@ -61,8 +79,6 @@ public void LoadInventoryCallback(Database db, DBResultSet results, const char[]
         g_ClientItem[client][items][iDateOfExpiration]  = results.FetchInt(5);
         
         items++;
-        
-        LogMessage("Load %N item -> %s -> %s", client, unique, g_Items[g_ClientItem[client][items][iItemIndex]][szFullName]);
     }
     
     g_ClientData[client][iItems] = items;

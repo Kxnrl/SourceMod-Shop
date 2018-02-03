@@ -58,7 +58,7 @@ void DisplayShopMenu(int client, bool invMode, int parent = -1, int lastItem = -
 
     Menu menu = new Menu(MenuHandler_ShopMenu);
     
-    menu.ExitButton = false;
+    menu.ExitButton = true;
     menu.ExitBackButton = true;
 
     if(parent != -1)
@@ -80,6 +80,9 @@ void DisplayShopMenu(int client, bool invMode, int parent = -1, int lastItem = -
             continue;
         
         if(!invMode && hasItem && g_Items[item][iCategory] != g_iFakeCategory)
+            continue;
+        
+        if(!invMode && strlen(g_Items[item][szPersonalId][0]) > 3)
             continue;
 
         menu.AddItem(g_Items[item][szUniqueId], g_Items[item][szFullName], (g_Items[item][iCategory] == -1) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);

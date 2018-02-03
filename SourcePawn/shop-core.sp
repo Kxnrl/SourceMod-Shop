@@ -41,7 +41,8 @@ enum Item_Categories //Category
     String:szType[32],
     bool:bEquipable,
     Handle:hPlugin,
-    Function:fnMenu
+    Function:fnMenu,
+    bool:bRemoved
 }
 
 enum Item_Data
@@ -119,6 +120,7 @@ public void OnPluginStart()
     // console command
     RegConsoleCmd("sm_shop",        Command_Shop);
     RegConsoleCmd("sm_store",       Command_Shop);
+    RegConsoleCmd("buyammo1",       Command_Shop);
     RegConsoleCmd("sm_inventory",   Command_Inv);
     
     // clients

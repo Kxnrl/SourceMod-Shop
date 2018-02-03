@@ -19,6 +19,7 @@ void Native_AskPluginLoad2()
 {
     //global
     CreateNative("MG_Shop_RegItemCategory",             Native_RegItemCategory);
+    CreateNative("MG_Shop_RemoveItemCategory",          Native_RemoveItemCategory);
     CreateNative("MG_Shop_GetItemIndex",                Native_GetItemIndex);
 
     //client
@@ -47,6 +48,23 @@ public int Native_RegItemCategory(Handle plugin, int numParams)
         return false;
 
     return UTIL_RegItemCategory(m_szType, GetNativeCell(2), plugin, GetNativeFunction(3));
+}
+
+public int Native_RemoveItemCategory(Handle plugin, int numParams)
+{
+    char m_szType[32];
+    if(GetNativeString(1, m_szType, 32) != SP_ERROR_NONE)
+        return false;
+    
+    int category = UTIL_FindCategoryByType(m_szType);
+    if(category == -1)
+        return true;
+    
+    g_Category[category][bRemoved] = true;
+    
+    UTIL_RefreshItem();
+
+    return true;
 }
 
 public int Native_GetItemIndex(Handle plugin, int numParams)

@@ -31,6 +31,15 @@
 #define TYPE_CC 1
 #define TYPE_NT 2
 
+public Plugin myinfo = 
+{
+    name        = PI_NAME,
+    author      = PI_AUTH,
+    description = PI_DESC,
+    version     = PI_VERS,
+    url         = PI_URLS
+};
+
 enum Chat
 {
     String:szUniqueId[32],
@@ -163,6 +172,13 @@ public void ConnectAndLoad()
 
     delete items;
     delete mySQL;
+}
+
+public void OnPluginEnd()
+{
+    MG_Shop_RemoveItemCategory("namecolor");
+    MG_Shop_RemoveItemCategory("chatcolor");
+    MG_Shop_RemoveItemCategory("nametag");
 }
 
 public void OnClientConnected(int client)

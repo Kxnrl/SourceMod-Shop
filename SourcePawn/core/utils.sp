@@ -17,17 +17,16 @@
 
 int UTIL_RegItemCategory(const char[] type, bool equip, Handle plugin, Function inventory)
 {
-    int index = UTIL_FindCategoryByType(type);
+    int index = UTIL_FindCategoryByType(type, true);
 
-    if(index != -1)
-        return index;
+    if(index == -1)
+        index = g_iCategories;
 
-    index = g_iCategories;
-    
     strcopy(g_Category[index][szType], 32, type);
     g_Category[index][bEquipable] = equip;
     g_Category[index][hPlugin] = plugin;
     g_Category[index][fnMenu] = inventory;
+    g_Category[index][bRemoved] = false;
 
     g_iCategories++;
 
@@ -36,11 +35,12 @@ int UTIL_RegItemCategory(const char[] type, bool equip, Handle plugin, Function 
     return index;
 }
 
-int UTIL_FindCategoryByType(const char[] type)
+int UTIL_FindCategoryByType(const char[] type, bool allowRemoved = false)
 {
     for(int i = 0; i < g_iCategories; ++i)
         if(strcmp(type, g_Category[i][szType]) == 0)
-            return i;
+            if(allowRemoved || !g_Category[i][bRemoved])
+                return i;
     return -1;
 }
 

@@ -189,6 +189,11 @@ public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] n
         SetConVarString(spec_replay_enable, "0", true);
 }
 
+public void OnPluginEnd()
+{
+    MG_Shop_RemoveItemCategory("skin");
+}
+
 public void OnMapStart()
 {
     g_pZombieReloaded = (FindPluginByFile("zombiereloaded.smx") != INVALID_HANDLE);

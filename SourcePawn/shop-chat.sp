@@ -236,10 +236,7 @@ void ProcessChat(int client, char name[128], char msg[256])
     
     if(data[TYPE_NC] > -1)
     {
-        if(strcmp(g_Chat[TYPE_NC][data[TYPE_NC]][szData], "{rainbow}") == 0)
-            RainbowString(name, str[TYPE_NC], 128);
-        else
-            FormatEx(str[TYPE_NC], 128, "%s%s", g_Chat[TYPE_NC][data[TYPE_NC]][szData], name);
+        FormatEx(str[TYPE_NC], 128, "%s%s", g_Chat[TYPE_NC][data[TYPE_NC]][szData], name);
     }
     else
     {
@@ -253,10 +250,7 @@ void ProcessChat(int client, char name[128], char msg[256])
 
     if(data[TYPE_CC] > -1)
     {
-        if(strcmp(g_Chat[TYPE_CC][data[TYPE_CC]][szData], "{rainbow}") == 0)
-            RainbowString(msg, str[TYPE_CC], 256);
-        else
-            FormatEx(str[TYPE_CC], 128, "%s%s", g_Chat[TYPE_CC][data[TYPE_CC]][szData], msg);
+        FormatEx(str[TYPE_CC], 128, "%s%s", g_Chat[TYPE_CC][data[TYPE_CC]][szData], msg);
     }
 
     FormatEx(name, 128, "%s %s", str[TYPE_NT], str[TYPE_NC]);
@@ -369,136 +363,59 @@ void Frame_OnChatMessage_SayText2(DataPack data)
     EndMessage();
 }
 
-void RainbowString(const char[] input, char[] output, int maxLen)
+void ReplaceColorsCode(char[] message, int maxLen)
 {
-    int bytes, buffs;
-    int size = strlen(input)+1;
-    char[] copy = new char [size];
-
-    for(int x = 0; x < size; ++x)
-    {
-        if(input[x] == '\0')
-            break;
-        
-        if(buffs == 2)
-        {
-            strcopy(copy, size, input);
-            copy[x+1] = '\0';
-            output[bytes] = RandomColor();
-            bytes++;
-            bytes += StrCat(output, maxLen, copy[x-buffs]);
-            buffs = 0;
-            continue;
-        }
-
-        if(!IsChar(input[x]))
-        {
-            buffs++;
-            continue;
-        }
-
-        strcopy(copy, size, input);
-        copy[x+1] = '\0';
-        output[bytes] = RandomColor();
-        bytes++;
-        bytes += StrCat(output, maxLen, copy[x]);
-    }
-
-    output[++bytes] = '\0';
-}
-
-bool IsChar(char c)
-{
-    if(0 <= c <= 126)
-        return true;
-    
-    return false;
-}
-
-int RandomColor()
-{
-    switch(UTIL_GetRandomInt(1, 16))
-    {
-        case  1: return '\x01';
-        case  2: return '\x02';
-        case  3: return '\x03';
-        case  4: return '\x03';
-        case  5: return '\x04';
-        case  6: return '\x05';
-        case  7: return '\x06';
-        case  8: return '\x07';
-        case  9: return '\x08';
-        case 10: return '\x09';
-        case 11: return '\x10';
-        case 12: return '\x0A';
-        case 13: return '\x0B';
-        case 14: return '\x0C';
-        case 15: return '\x0E';
-        case 16: return '\x0F';
-        default: return '\x01';
-    }
-
-    return '\x01';
-}
-
-void ReplaceColorsCode(char[] message, int maxLen, int team = 0)
-{
-    ReplaceString(message, maxLen, "{normal}", "\x01", false);
-    ReplaceString(message, maxLen, "{default}", "\x01", false);
-    ReplaceString(message, maxLen, "{white}", "\x01", false);
-    ReplaceString(message, maxLen, "{darkred}", "\x02", false);
-    switch(team)
-    {
-        case 3 : ReplaceString(message, maxLen, "{teamcolor}", "\x0B", false);
-        case 2 : ReplaceString(message, maxLen, "{teamcolor}", "\x05", false);
-        default: ReplaceString(message, maxLen, "{teamcolor}", "\x01", false);
-    }
-    ReplaceString(message, maxLen, "{pink}", "\x03", false);
-    ReplaceString(message, maxLen, "{green}", "\x04", false);
-    ReplaceString(message, maxLen, "{highlight}", "\x04", false);
-    ReplaceString(message, maxLen, "{yellow}", "\x05", false);
-    ReplaceString(message, maxLen, "{lightgreen}", "\x05", false);
-    ReplaceString(message, maxLen, "{cyan}", "\x06", false);
-    ReplaceString(message, maxLen, "{lime}", "\x06", false);
-    ReplaceString(message, maxLen, "{lightred}", "\x07", false);
-    ReplaceString(message, maxLen, "{red}", "\x07", false);
-    ReplaceString(message, maxLen, "{gray}", "\x08", false);
-    ReplaceString(message, maxLen, "{grey}", "\x08", false);
-    ReplaceString(message, maxLen, "{olive}", "\x09", false);
-    ReplaceString(message, maxLen, "{orange}", "\x10", false);
-    ReplaceString(message, maxLen, "{silver}", "\x0A", false);
-    ReplaceString(message, maxLen, "{lightblue}", "\x0B", false);
-    ReplaceString(message, maxLen, "{blue}", "\x0C", false);
-    ReplaceString(message, maxLen, "{purple}", "\x0E", false);
-    ReplaceString(message, maxLen, "{darkorange}", "\x0F", false);
+    ReplaceString(message, maxLen, "{normal}",      "\x01", false);
+    ReplaceString(message, maxLen, "{default}",     "\x01", false);
+    ReplaceString(message, maxLen, "{white}",       "\x01", false);
+    ReplaceString(message, maxLen, "{darkred}",     "\x02", false);
+    ReplaceString(message, maxLen, "{pink}",        "\x03", false);
+    ReplaceString(message, maxLen, "{green}",       "\x04", false);
+    ReplaceString(message, maxLen, "{highlight}",   "\x04", false);
+    ReplaceString(message, maxLen, "{yellow}",      "\x05", false);
+    ReplaceString(message, maxLen, "{lightgreen}",  "\x05", false);
+    ReplaceString(message, maxLen, "{cyan}",        "\x06", false);
+    ReplaceString(message, maxLen, "{lime}",        "\x06", false);
+    ReplaceString(message, maxLen, "{lightred}",    "\x07", false);
+    ReplaceString(message, maxLen, "{red}",         "\x07", false);
+    ReplaceString(message, maxLen, "{gray}",        "\x08", false);
+    ReplaceString(message, maxLen, "{grey}",        "\x08", false);
+    ReplaceString(message, maxLen, "{olive}",       "\x09", false);
+    ReplaceString(message, maxLen, "{orange}",      "\x10", false);
+    ReplaceString(message, maxLen, "{silver}",      "\x0A", false);
+    ReplaceString(message, maxLen, "{lightblue}",   "\x0B", false);
+    ReplaceString(message, maxLen, "{blue}",        "\x0C", false);
+    ReplaceString(message, maxLen, "{purple}",      "\x0E", false);
+    ReplaceString(message, maxLen, "{darkorange}",  "\x0F", false);
 }
 
 void RemoveAllColors(char[] message, int maxLen)
 {
-	ReplaceString(message, maxLen, "{normal}", "", false);
-	ReplaceString(message, maxLen, "{default}", "", false);
-	ReplaceString(message, maxLen, "{white}", "", false);
-	ReplaceString(message, maxLen, "{darkred}", "", false);
-	ReplaceString(message, maxLen, "{teamcolor}", "", false);
-	ReplaceString(message, maxLen, "{pink}", "", false);
-	ReplaceString(message, maxLen, "{green}", "", false);
-	ReplaceString(message, maxLen, "{HIGHLIGHT}", "", false);
-	ReplaceString(message, maxLen, "{lime}", "", false);
-	ReplaceString(message, maxLen, "{lightgreen}", "", false);
-	ReplaceString(message, maxLen, "{lime}", "", false);
-	ReplaceString(message, maxLen, "{lightred}", "", false);
-	ReplaceString(message, maxLen, "{red}", "", false);
-	ReplaceString(message, maxLen, "{gray}", "", false);
-	ReplaceString(message, maxLen, "{grey}", "", false);
-	ReplaceString(message, maxLen, "{olive}", "", false);
-	ReplaceString(message, maxLen, "{yellow}", "", false);
-	ReplaceString(message, maxLen, "{orange}", "", false);
-	ReplaceString(message, maxLen, "{silver}", "", false);
-	ReplaceString(message, maxLen, "{lightblue}", "", false);
-	ReplaceString(message, maxLen, "{blue}", "", false);
-	ReplaceString(message, maxLen, "{purple}", "", false);
-	ReplaceString(message, maxLen, "{darkorange}", "", false);
-	ReplaceString(message, maxLen, "\x01", "", false);
+	ReplaceString(message, maxLen, "{normal}",      "", false);
+	ReplaceString(message, maxLen, "{default}",     "", false);
+	ReplaceString(message, maxLen, "{white}",       "", false);
+	ReplaceString(message, maxLen, "{darkred}",     "", false);
+	ReplaceString(message, maxLen, "{teamcolor}",   "", false);
+	ReplaceString(message, maxLen, "{pink}",        "", false);
+	ReplaceString(message, maxLen, "{green}",       "", false);
+	ReplaceString(message, maxLen, "{HIGHLIGHT}",   "", false);
+	ReplaceString(message, maxLen, "{lime}",        "", false);
+	ReplaceString(message, maxLen, "{lightgreen}",  "", false);
+	ReplaceString(message, maxLen, "{lime}",        "", false);
+	ReplaceString(message, maxLen, "{lightred}",    "", false);
+	ReplaceString(message, maxLen, "{red}",         "", false);
+	ReplaceString(message, maxLen, "{gray}",        "", false);
+	ReplaceString(message, maxLen, "{grey}",        "", false);
+	ReplaceString(message, maxLen, "{olive}",       "", false);
+	ReplaceString(message, maxLen, "{yellow}",      "", false);
+	ReplaceString(message, maxLen, "{orange}",      "", false);
+	ReplaceString(message, maxLen, "{silver}",      "", false);
+	ReplaceString(message, maxLen, "{lightblue}",   "", false);
+	ReplaceString(message, maxLen, "{blue}",        "", false);
+	ReplaceString(message, maxLen, "{purple}",      "", false);
+	ReplaceString(message, maxLen, "{darkorange}",  "", false);
+	
+    ReplaceString(message, maxLen, "\x01", "", false);
 	ReplaceString(message, maxLen, "\x02", "", false);
 	ReplaceString(message, maxLen, "\x03", "", false);
 	ReplaceString(message, maxLen, "\x04", "", false);
@@ -592,19 +509,9 @@ public int MenuHandler_InvMenu(Menu menu, MenuAction action, int param1, int par
                 if(item > -1)
                 {
                     if(type == TYPE_CC)
-                    {
-                        if(strcmp(g_Chat[TYPE_CC][item][szData], "{rainbow}") == 0)
-                            RainbowString("这是你打字的内容!", msg, 256);
-                        else
-                            FormatEx(msg, 128, "%s这是你打字的内容!", g_Chat[TYPE_CC][item][szData]);
-                    }
+                        FormatEx(msg, 128, "%s这是你打字的内容!", g_Chat[TYPE_CC][item][szData]);
                     else if(type == TYPE_NC)
-                    {
-                        if(strcmp(g_Chat[TYPE_NC][item][szData], "{rainbow}") == 0)
-                            RainbowString("这是你的名字", name, 128);
-                        else
-                            FormatEx(name, 128, "%s这是你的名字", g_Chat[TYPE_NC][item][szData]);
-                    }
+                        FormatEx(name, 128, "%s这是你的名字", g_Chat[TYPE_NC][item][szData]);
                     else if(type == TYPE_NT)
                         FormatEx(name, 128, "%s这是你的名字", g_Chat[TYPE_NT][item][szData]);
                 }

@@ -86,6 +86,21 @@ public void OnPluginStart()
 
     // events
     HookEventEx("player_team", Event_PlayerTean, EventHookMode_Post);
+    
+    // hook cvars
+    ConVar sv_full_alltalk = FindConVar("sv_full_alltalk");
+    if(ConVar != null)
+    {
+        sv_full_alltalk.SetInt(1);
+        HookConVarChange(sv_full_alltalk, OnConVarChanged);
+    }
+    else
+        LogError("sv_full_alltalk is null");
+}
+
+public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+    convar.SetInt(1);
 }
 
 void GenerateMessageFormats()

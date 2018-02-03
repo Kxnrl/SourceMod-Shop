@@ -89,7 +89,7 @@ public void OnPluginStart()
     
     // hook cvars
     ConVar sv_full_alltalk = FindConVar("sv_full_alltalk");
-    if(ConVar != null)
+    if(sv_full_alltalk != null)
     {
         sv_full_alltalk.SetInt(1);
         HookConVarChange(sv_full_alltalk, OnConVarChanged);
@@ -363,11 +363,10 @@ void Frame_OnChatMessage_SayText2(DataPack data)
     char m_szBuffer[512];
     strcopy(m_szBuffer, 512, m_szFmt);
 
-    ReplaceString(m_szBuffer, 512, "{1} :  {2}", "{1} {normal}:  {2}");
     ReplaceString(m_szBuffer, 512, "{1}", m_szName);
     ReplaceString(m_szBuffer, 512, "{2}", m_szMsg);
 
-    ReplaceColorsCode(m_szBuffer, 512, g_iClientTeam[m_iSender]);
+    ReplaceColorsCode(m_szBuffer, 512);
 
     Protobuf pb = UserMessageToProtobuf(StartMessageEx(g_umUMId, target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
     pb.SetInt("ent_idx", m_iSender);
@@ -408,46 +407,46 @@ void ReplaceColorsCode(char[] message, int maxLen)
 
 void RemoveAllColors(char[] message, int maxLen)
 {
-	ReplaceString(message, maxLen, "{normal}",      "", false);
-	ReplaceString(message, maxLen, "{default}",     "", false);
-	ReplaceString(message, maxLen, "{white}",       "", false);
-	ReplaceString(message, maxLen, "{darkred}",     "", false);
-	ReplaceString(message, maxLen, "{teamcolor}",   "", false);
-	ReplaceString(message, maxLen, "{pink}",        "", false);
-	ReplaceString(message, maxLen, "{green}",       "", false);
-	ReplaceString(message, maxLen, "{HIGHLIGHT}",   "", false);
-	ReplaceString(message, maxLen, "{lime}",        "", false);
-	ReplaceString(message, maxLen, "{lightgreen}",  "", false);
-	ReplaceString(message, maxLen, "{lime}",        "", false);
-	ReplaceString(message, maxLen, "{lightred}",    "", false);
-	ReplaceString(message, maxLen, "{red}",         "", false);
-	ReplaceString(message, maxLen, "{gray}",        "", false);
-	ReplaceString(message, maxLen, "{grey}",        "", false);
-	ReplaceString(message, maxLen, "{olive}",       "", false);
-	ReplaceString(message, maxLen, "{yellow}",      "", false);
-	ReplaceString(message, maxLen, "{orange}",      "", false);
-	ReplaceString(message, maxLen, "{silver}",      "", false);
-	ReplaceString(message, maxLen, "{lightblue}",   "", false);
-	ReplaceString(message, maxLen, "{blue}",        "", false);
-	ReplaceString(message, maxLen, "{purple}",      "", false);
-	ReplaceString(message, maxLen, "{darkorange}",  "", false);
-	
+    ReplaceString(message, maxLen, "{normal}",      "", false);
+    ReplaceString(message, maxLen, "{default}",     "", false);
+    ReplaceString(message, maxLen, "{white}",       "", false);
+    ReplaceString(message, maxLen, "{darkred}",     "", false);
+    ReplaceString(message, maxLen, "{teamcolor}",   "", false);
+    ReplaceString(message, maxLen, "{pink}",        "", false);
+    ReplaceString(message, maxLen, "{green}",       "", false);
+    ReplaceString(message, maxLen, "{HIGHLIGHT}",   "", false);
+    ReplaceString(message, maxLen, "{lime}",        "", false);
+    ReplaceString(message, maxLen, "{lightgreen}",  "", false);
+    ReplaceString(message, maxLen, "{lime}",        "", false);
+    ReplaceString(message, maxLen, "{lightred}",    "", false);
+    ReplaceString(message, maxLen, "{red}",         "", false);
+    ReplaceString(message, maxLen, "{gray}",        "", false);
+    ReplaceString(message, maxLen, "{grey}",        "", false);
+    ReplaceString(message, maxLen, "{olive}",       "", false);
+    ReplaceString(message, maxLen, "{yellow}",      "", false);
+    ReplaceString(message, maxLen, "{orange}",      "", false);
+    ReplaceString(message, maxLen, "{silver}",      "", false);
+    ReplaceString(message, maxLen, "{lightblue}",   "", false);
+    ReplaceString(message, maxLen, "{blue}",        "", false);
+    ReplaceString(message, maxLen, "{purple}",      "", false);
+    ReplaceString(message, maxLen, "{darkorange}",  "", false);
+    
     ReplaceString(message, maxLen, "\x01", "", false);
-	ReplaceString(message, maxLen, "\x02", "", false);
-	ReplaceString(message, maxLen, "\x03", "", false);
-	ReplaceString(message, maxLen, "\x04", "", false);
-	ReplaceString(message, maxLen, "\x05", "", false);
-	ReplaceString(message, maxLen, "\x06", "", false);
-	ReplaceString(message, maxLen, "\x07", "", false);
-	ReplaceString(message, maxLen, "\x08", "", false);
-	ReplaceString(message, maxLen, "\x09", "", false);
-	ReplaceString(message, maxLen, "\x10", "", false);
-	ReplaceString(message, maxLen, "\x0A", "", false);
-	ReplaceString(message, maxLen, "\x0B", "", false);
-	ReplaceString(message, maxLen, "\x0C", "", false);
-	ReplaceString(message, maxLen, "\x0D", "", false);
-	ReplaceString(message, maxLen, "\x0E", "", false);
-	ReplaceString(message, maxLen, "\x0F", "", false);
+    ReplaceString(message, maxLen, "\x02", "", false);
+    ReplaceString(message, maxLen, "\x03", "", false);
+    ReplaceString(message, maxLen, "\x04", "", false);
+    ReplaceString(message, maxLen, "\x05", "", false);
+    ReplaceString(message, maxLen, "\x06", "", false);
+    ReplaceString(message, maxLen, "\x07", "", false);
+    ReplaceString(message, maxLen, "\x08", "", false);
+    ReplaceString(message, maxLen, "\x09", "", false);
+    ReplaceString(message, maxLen, "\x10", "", false);
+    ReplaceString(message, maxLen, "\x0A", "", false);
+    ReplaceString(message, maxLen, "\x0B", "", false);
+    ReplaceString(message, maxLen, "\x0C", "", false);
+    ReplaceString(message, maxLen, "\x0D", "", false);
+    ReplaceString(message, maxLen, "\x0E", "", false);
+    ReplaceString(message, maxLen, "\x0F", "", false);
 }
 
 bool ChatToAll(const char[] flag)
@@ -464,16 +463,6 @@ bool ChatFromDead(const char[] flag)
         return true;
 
     return false;
-}
-
-int UTIL_GetRandomInt(int min, int max)
-{
-    int random = GetURandomInt();
-    
-    if(random == 0)
-        random++;
-
-    return RoundToCeil(float(random) / (float(2147483647) / float(max - min + 1))) + min - 1;
 }
 
 public void OnMenuInventory(int client, const char[] uniqueId, bool inventory)

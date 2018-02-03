@@ -106,17 +106,17 @@ public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] n
 void GenerateMessageFormats()
 {
     g_tMsgFmt = new StringMap();
-
-    g_tMsgFmt.SetString("Cstrike_Chat_CT_Loc", "(\x0BCT\x01) {1} :  {2}");
-    g_tMsgFmt.SetString("Cstrike_Chat_CT", "(\x0BCT\x01) {1} :  {2}");
-    g_tMsgFmt.SetString("Cstrike_Chat_T_Loc", "(\x05TE\x01) {1} :  {2}");
-    g_tMsgFmt.SetString("Cstrike_Chat_T", "(\x05TE\x01) {1} :  {2}");
-    g_tMsgFmt.SetString("Cstrike_Chat_CT_Dead", "*DEAD*(\x0BCT\x01) {1} :  {2}");
-    g_tMsgFmt.SetString("Cstrike_Chat_T_Dead", "*DEAD*(\x05TE\x01) {1} :  {2}");
-    g_tMsgFmt.SetString("Cstrike_Chat_Spec", "(\x0ASPEC\x01) {1} :  {2}");
-    g_tMsgFmt.SetString("Cstrike_Chat_All", " {1} :  {2}");
-    g_tMsgFmt.SetString("Cstrike_Chat_AllDead", "*\x07DEAD\x01* {1} :  {2}");
-    g_tMsgFmt.SetString("Cstrike_Chat_AllSpec", "*\x0ASPEC\x01* {1} :  {2}");
+    
+    g_tMsgFmt.SetString("Cstrike_Chat_CT_Loc", "(CT) {1} \x01:  {2}");
+    g_tMsgFmt.SetString("Cstrike_Chat_CT", "(CT) {1} \x01:  {2}");
+    g_tMsgFmt.SetString("Cstrike_Chat_T_Loc", "(TE) {1} \x01:  {2}");
+    g_tMsgFmt.SetString("Cstrike_Chat_T", "(TE) {1} \x01:  {2}");
+    g_tMsgFmt.SetString("Cstrike_Chat_CT_Dead", " \x07*DEAD* \x01(\x0BCT\x01) {1} \x01:  {2}");
+    g_tMsgFmt.SetString("Cstrike_Chat_T_Dead", " \x07*DEAD* \x01(\x05TE\x01) {1} \x01:  {2}");
+    g_tMsgFmt.SetString("Cstrike_Chat_Spec", "(SPEC) {1} \x01:  {2}");
+    g_tMsgFmt.SetString("Cstrike_Chat_All", " {1} \x01:  {2}");
+    g_tMsgFmt.SetString("Cstrike_Chat_AllDead", " \x07*DEAD* {1} \x01:  {2}");
+    g_tMsgFmt.SetString("Cstrike_Chat_AllSpec", " \x0A*SPEC* {1} \x01:  {2}");
 }
 
 public void ConnectAndLoad()
@@ -247,7 +247,9 @@ void ProcessChat(int client, char name[128], char msg[256])
     strcopy(str[TYPE_CC], 128, msg);
 
     if(data[TYPE_NT] > -1)
+    {
         strcopy(str[TYPE_NT], 64, g_Chat[TYPE_NT][data[TYPE_NT]][szData]);
+    }
     
     if(data[TYPE_NC] > -1)
     {

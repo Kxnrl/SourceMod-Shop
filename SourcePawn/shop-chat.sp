@@ -254,12 +254,13 @@ void ProcessChat(int client, char name[128], char msg[256])
     if(data[TYPE_CC] > -1)
     {
         if(strcmp(g_Chat[TYPE_CC][data[TYPE_CC]][szData], "{rainbow}") == 0)
-            RainbowString(str[TYPE_CC], msg, 256);
+            RainbowString(msg, str[TYPE_CC], 256);
         else
-            FormatEx(msg, 128, "%s%s", g_Chat[TYPE_CC][data[TYPE_CC]][szData], str[TYPE_CC]);
+            FormatEx(str[TYPE_CC], 128, "%s%s", g_Chat[TYPE_CC][data[TYPE_CC]][szData], msg);
     }
 
     FormatEx(name, 128, "%s %s", str[TYPE_NT], str[TYPE_NC]);
+    FormatEx( msg, 256, "%s"   , str[TYPE_CC]);
 }
 
 int UTIL_GetItem(const char[] uniqueId)
@@ -457,6 +458,7 @@ void ReplaceColorsCode(char[] message, int maxLen, int team = 0)
     ReplaceString(message, maxLen, "{highlight}", "\x04", false);
     ReplaceString(message, maxLen, "{yellow}", "\x05", false);
     ReplaceString(message, maxLen, "{lightgreen}", "\x05", false);
+    ReplaceString(message, maxLen, "{cyan}", "\x06", false);
     ReplaceString(message, maxLen, "{lime}", "\x06", false);
     ReplaceString(message, maxLen, "{lightred}", "\x07", false);
     ReplaceString(message, maxLen, "{red}", "\x07", false);
@@ -599,7 +601,7 @@ public int MenuHandler_InvMenu(Menu menu, MenuAction action, int param1, int par
                     else if(type == TYPE_NC)
                     {
                         if(strcmp(g_Chat[TYPE_NC][item][szData], "{rainbow}") == 0)
-                            RainbowString("", name, 128);
+                            RainbowString("这是你的名字", name, 128);
                         else
                             FormatEx(name, 128, "%s这是你的名字", g_Chat[TYPE_NC][item][szData]);
                     }

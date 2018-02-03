@@ -134,7 +134,7 @@ public void OnMapStart()
             PrepareSound(g_Skins[skin][szSound]);
     }
     
-    g_pZombieReloaded = (FindPluginByFile("zombiereloaded.smx") != INVALID_HANDLED);
+    g_pZombieReloaded = (FindPluginByFile("zombiereloaded.smx") != INVALID_HANDLE);
     
     if(g_pZombieReloaded)
         PrecacheModel(MODEL_HUMAN);

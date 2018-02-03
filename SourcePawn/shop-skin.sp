@@ -35,6 +35,8 @@
 #define COOKIE_ANY  2
 #define MAX_SKINS  64
 
+#define MODEL_HUMAN "models/player/custom_player/legacy/tm_leet_variant_classic.mdl"
+
 enum Skins
 {
     String:szUniqueId[32],
@@ -56,6 +58,8 @@ Handle g_cookieSkin[3];
 int g_iDataIndex[MAXPLAYERS+1];
 
 bool g_bIsGlobalMode = false;
+
+bool g_pZombieReloaded;
 
 public void OnPluginStart()
 {
@@ -129,6 +133,11 @@ public void OnMapStart()
         if(strlen(g_Skins[skin][szSound]) > 3)
             PrepareSound(g_Skins[skin][szSound]);
     }
+    
+    g_pZombieReloaded = (FindPluginByFile("zombiereloaded.smx") != INVALID_HANDLED);
+    
+    if(g_pZombieReloaded)
+        PrecacheModel(MODEL_HUMAN);
 }
 
 void PrepareSound(const char[] sound)
@@ -162,18 +171,25 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
     char skin_uid[32];
     GetClientCookie(client, g_cookieSkin[team], skin_uid, 32);
     
-    if(strlen(skin_uid) < 4)
+    if(strlen(skin_uid) < 4 || !MG_Shop_HasClientItem(client, skin_uid))
+    {
+        if(g_pZombieReloaded)
+            CreateTimer(0.02, Timer_SetClientModel_Human, client, TIMER_FLAG_NO_MAPCHANGE);
+        
         return Plugin_Continue;
-    
-    if(!MG_Shop_HasClientItem(client, skin_uid))
-        return Plugin_Continue;
+    }
     
     g_iDataIndex[client] = UTIL_GetSkin(skin_uid);
     if(g_iDataIndex[client] == -1)
+    {
+        if(g_pZombieReloaded)
+            CreateTimer(0.02, Timer_SetClientModel_Human, client, TIMER_FLAG_NO_MAPCHANGE);
+
         return Plugin_Continue;
+    }
 
     CreateTimer(0.02, Timer_SetClientModel, client, TIMER_FLAG_NO_MAPCHANGE);
-    
+
     return Plugin_Continue;
 }
 
@@ -190,11 +206,24 @@ public Action Timer_SetClientModel(Handle timer, int client)
     return Plugin_Stop;
 }
 
+public Action Timer_SetClientModel_Human(Handle timer, int client)
+{
+    if(!IsClientInGame(client) || !IsPlayerAlive(client))
+        return Plugin_Stop;
+    
+    SetEntityModel(client, MODEL_HUMAN);
+
+    return Plugin_Stop;
+}
+
 public Action Event_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
     if(channel != SNDCHAN_VOICE || client > MaxClients || client < 1 || !IsClientInGame(client) || g_iDataIndex[client] < 0 || g_iDataIndex[client] > g_iSkins)
         return Plugin_Continue;
     
+    if(g_pZombieReloaded && GetClientTeam(client) == 2)
+        return Plugin_Stop;
+
     if  ( 
             StrEqual(sample, "~player/death1.wav", false)||
             StrEqual(sample, "~player/death2.wav", false)||

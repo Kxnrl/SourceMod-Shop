@@ -124,8 +124,8 @@ void GenerateMessageFormats()
     g_tMsgFmt.SetString("Cstrike_Chat_T_Dead", " \x07*DEAD* \x01(\x05TE\x01) {1} \x01:  {2}");
     g_tMsgFmt.SetString("Cstrike_Chat_Spec", "(SPEC) {1} \x01:  {2}");
     g_tMsgFmt.SetString("Cstrike_Chat_All", " {1} \x01:  {2}");
-    g_tMsgFmt.SetString("Cstrike_Chat_AllDead", " \x07*DEAD* {1} \x01:  {2}");
-    g_tMsgFmt.SetString("Cstrike_Chat_AllSpec", " \x0A*SPEC* {1} \x01:  {2}");
+    g_tMsgFmt.SetString("Cstrike_Chat_AllDead", " \x07*DEAD* \x01{1} \x01:  {2}");
+    g_tMsgFmt.SetString("Cstrike_Chat_AllSpec", " \x0A*SPEC* \x01{1} \x01:  {2}");
 }
 
 public void ConnectAndLoad()
@@ -498,6 +498,15 @@ public void OnMenuInventory(int client, const char[] uniqueId, bool inventory)
     
     int item = UTIL_GetItem(uniqueId);
     
+    bool equip = false;
+    for(int i; i < 3; ++i)
+    {
+        char data[32];
+        GetClientCookie(client, g_cookies[i], data, 32);
+        if(strcmp(uniqueId, data) == 0)
+            equip = true;
+    }
+
     switch(type)
     {
         case TYPE_CC : menu.SetTitle("商店 - %s\n余额: %d G\n \n聊天颜色 :: %s\n%s\n ", inventory ? "库存" : "展柜", MG_Shop_GetClientMoney(client), g_Chat[TYPE_CC][item][szName], g_Chat[TYPE_CC][item][szDesc]);
@@ -505,8 +514,9 @@ public void OnMenuInventory(int client, const char[] uniqueId, bool inventory)
         case TYPE_NC : menu.SetTitle("商店 - %s\n余额: %d G\n \n名字颜色 :: %s\n%s\n ", inventory ? "库存" : "展柜", MG_Shop_GetClientMoney(client), g_Chat[TYPE_NC][item][szName], g_Chat[TYPE_NC][item][szDesc]);
     }
 
+
     menu.AddItem(uniqueId, "预览");
-    menu.AddItem(uniqueId, inventory ? "装备" : "购买");
+    menu.AddItem(uniqueId, !inventory ? "购买" : equip ? "卸下" : "装备");
 
     menu.Display(client, 60);
 }
@@ -540,10 +550,30 @@ public int MenuHandler_InvMenu(Menu menu, MenuAction action, int param1, int par
 
                 PrintToChat(param1, "%s :  %s", name, msg);
             }
-            case 1: if(MG_Shop_HasClientItem(param1, uniqueId)) EquipItem(param1, uniqueId); else MG_Shop_BuyItemMenu(param1, uniqueId);
+            case 1: 
+            {
+                if(MG_Shop_HasClientItem(param1, uniqueId))
+                {
+                    bool equip = false;
+                    for(int i; i < 3; ++i)
+                    {
+                        char data[32];
+                        GetClientCookie(param1, g_cookies[i], data, 32);
+                        if(strcmp(uniqueId, data) == 0)
+                            equip = true;
+                    }
+                    
+                    if(!equip)
+                        EquipItem(param1, uniqueId);
+                    else
+                        UnEquipItem(param1, UTIL_GetType(uniqueId));
+                }
+                else 
+                    MG_Shop_BuyItemMenu(param1, uniqueId);
+            }
             case 2: PrintToChat(param1, "[\x04Shop\x01]   \x07该功能目前不可用...");
         }
-        
+
         MG_Shop_DisplayPreviousMenu(param1);
     }
     else if(action == MenuAction_Cancel && param2 == MenuCancel_ExitBack)
@@ -564,5 +594,17 @@ void EquipItem(int client, const char[] uniqueId)
         case TYPE_CC : PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   已保存\x04聊天颜色\x01为[\x10%s\x01]", g_Chat[type][item][szName]);
         case TYPE_NT : PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   已保存\x04名字标签\x01为[\x10%s\x01]", g_Chat[type][item][szName]);
         case TYPE_NC : PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   已保存\x04名字颜色\x01为[\x10%s\x01]", g_Chat[type][item][szName]);
+    }
+}
+
+void UnEquipItem(int client, int type)
+{
+    SetClientCookie(client, g_cookies[type], "");
+
+    switch(type)
+    {
+        case TYPE_CC : PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   已取消装备\x04聊天颜色");
+        case TYPE_NT : PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   已取消装备\x04名字标签");
+        case TYPE_NC : PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   已取消装备\x04名字颜色");
     }
 }

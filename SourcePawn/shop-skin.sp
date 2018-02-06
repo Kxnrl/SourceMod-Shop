@@ -240,6 +240,8 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 {
     int client = GetClientOfUserId(event.GetInt("userid"));
     
+    Timer_ClearCamera(INVALID_HANDLE, client);
+    
     g_iDataIndex[client] = -1;
     
     int team;
@@ -466,11 +468,26 @@ public void OnMenuInventory(int client, const char[] uniqueId, bool inventory)
         MG_Shop_DisplayPreviousMenu(client);
         return;
     }
+    
+    bool equip = false;
+    if(g_bIsGlobalMode)
+    {
+        char data[32];
+        GetClientCookie(client, g_cookieSkin[COOKIE_ANY], data, 32);
+        equip = (strcmp(uniqueId, data) == 0);
+    }
+    else
+    {
+        int team = g_Skins[skin][iTeam] - 2;
+        char data[32];
+        GetClientCookie(client, g_cookieSkin[team], data, 32);
+        equip = (strcmp(uniqueId, data) == 0);
+    }
 
     menu.SetTitle("商店 - %s\n余额: %d G\n \n%s\n%s\n \n阵营: %s\n ", inventory ? "库存" : "展柜", MG_Shop_GetClientMoney(client), g_Skins[skin][szName], g_Skins[skin][szDesc], g_bIsGlobalMode ? "通用" : (g_Skins[skin][iTeam] == 3 ? "CT" : "TE"));
 
     menu.AddItem(uniqueId, "预览");
-    menu.AddItem(uniqueId, inventory ? "装备" : "购买");
+    menu.AddItem(uniqueId, !inventory ? "购买" : !equip ? "装备" : "卸下");
     menu.AddItem(uniqueId, inventory ? "售出" : "开箱");
 
     menu.Display(client, 60);
@@ -480,12 +497,22 @@ public int MenuHandler_InvMenu(Menu menu, MenuAction action, int param1, int par
 {
     if(action == MenuAction_Select)
     {
-        char uniqueId[32];
-        menu.GetItem(param2, uniqueId, 32);
+        char uniqueId[32], handle[32];
+        menu.GetItem(param2, uniqueId, 32, _, handle, 32);
         switch(param2)
         {
             case 0: PrintToChat(param1, "[\x04Shop\x01]   \x07该功能目前不可用...");
-            case 1: if(MG_Shop_HasClientItem(param1, uniqueId)) EquipSkin(param1, uniqueId); else MG_Shop_BuyItemMenu(param1, uniqueId);
+            case 1: 
+            {
+                if(MG_Shop_HasClientItem(param1, uniqueId))
+                {
+                    if(strcmp(handle, "装备") == 0)
+                        EquipSkin(param1, uniqueId);
+                    else
+                        UnEquipSkin(param1, uniqueId);
+                }
+                else MG_Shop_BuyItemMenu(param1, uniqueId);
+            }
             case 2: PrintToChat(param1, "[\x04Shop\x01]   \x07该功能目前不可用...");
         }
         
@@ -507,4 +534,14 @@ void EquipSkin(int client, const char[] uniqueId)
         SetClientCookie(client, g_cookieSkin[g_Skins[skin][iTeam]-2], uniqueId);
 
     PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   您已装备[\x10%s\x01]于%s\x01阵营", g_Skins[skin][szName], g_bIsGlobalMode ? "\x0A通用" : (g_Skins[skin][iTeam] == 3 ? "\x0BCT" : "\x05TE"));
+}
+
+void UnEquipSkin(int client, const char[] uniqueId)
+{
+    int skin = UTIL_GetSkin(uniqueId);
+    int team = g_bIsGlobalMode ? COOKIE_ANY : g_Skins[skin][iTeam] - 2;
+    
+    SetClientCookie(client, g_cookieSkin[team], "");
+
+    PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   您已卸下%s\x01阵营的皮肤", g_bIsGlobalMode ? "\x0A通用" : (g_Skins[skin][iTeam] == 3 ? "\x0BCT" : "\x05TE"));
 }

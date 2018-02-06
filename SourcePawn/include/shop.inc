@@ -28,6 +28,7 @@ typedef SellItemFunc = function void (int client, int earn, const char[] uniqueI
 native  int MG_Shop_RegItemCategory(const char[] category, bool Equipable, MenuDetailFunc inventoryMenu);
 native  int MG_Shop_RemoveItemCategory(const char[] category);
 native  int MG_Shop_GetItemIndex(const char[] uniqueId);
+native bool MG_Shop_GetItemFullName(const char[] uniqueId);
 
 native bool MG_Shop_HasClientItem(int client, const char[] uniqueId);
 native  int MG_Shop_ClientGetDateofExpiration(int client, const char[] uniqueId);

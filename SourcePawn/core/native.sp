@@ -21,6 +21,7 @@ void Native_AskPluginLoad2()
     CreateNative("MG_Shop_RegItemCategory",             Native_RegItemCategory);
     CreateNative("MG_Shop_RemoveItemCategory",          Native_RemoveItemCategory);
     CreateNative("MG_Shop_GetItemIndex",                Native_GetItemIndex);
+    CreateNative("MG_Shop_GetItemFullName",             Native_GetItemFullName);
 
     //client
     CreateNative("MG_Shop_HasClientItem",               Native_HasClientItem);
@@ -74,6 +75,19 @@ public int Native_GetItemIndex(Handle plugin, int numParams)
         return -1;
 
     return UTIL_FindItemByUniqueId(m_szUniqueId);
+}
+
+public int Native_GetItemFullName(Handle plugin, int numParams)
+{
+    char m_szUniqueId[32];
+    if(GetNativeString(1, m_szUniqueId, 32) != SP_ERROR_NONE)
+        return false;
+    
+    int itemid = UTIL_FindItemByUniqueId(m_szUniqueId);
+    if(itemid == -1)
+        return false;
+    
+    return (SetNativeString(2, g_Items[itemid][szFullName], GetNativeCell(3), true) == SP_ERROR_NONE);
 }
 
 public int Native_HasClientItem(Handle plugin, int numParams)

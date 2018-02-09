@@ -21,7 +21,7 @@
 #define PI_NAME "MagicGirl.NET - Shop :: Player Skin [DARLING IN THE FRANXX]"
 #define PI_AUTH "Kyle"
 #define PI_DESC "In-game Shop for MagicGirl.NET"
-#define PI_VERS "<commit-count>"
+#define PI_VERS "[DARLING IN THE FRANXX] v" ... MAJORV ... "." ... MINORV ... "." ... BUILDs
 #define PI_URLS "https://MagicGirl.net"
 
 #include <shop>

@@ -21,6 +21,10 @@
 
 #define _Shop_Include_
 
+#define MAJORV "0"
+#define MINORV "1"
+#define BUILDs "<commit-count>"
+
 typedef MenuDetailFunc = function void (int client, const char[] uniqueId, bool inventory);
 typedef BuyItemFunc = function void (int client, int cost, const char[] uniqueId);
 typedef SellItemFunc = function void (int client, int earn, const char[] uniqueId);

@@ -286,8 +286,8 @@ void ProcessChat(int client, char name[128], char msg[256])
         FormatEx(str[TYPE_CC], 128, "%s%s", g_Chat[TYPE_CC][data[TYPE_CC]][szData], msg);
     }
 
-    FormatEx(name, 128, "%s %s", str[TYPE_NT], str[TYPE_NC]);
-    FormatEx( msg, 256, "%s"   , str[TYPE_CC]);
+    FormatEx(name, 128, "\x01%s %s", str[TYPE_NT], str[TYPE_NC]);
+    FormatEx( msg, 256, "\x01%s"   , str[TYPE_CC]);
 }
 
 int UTIL_GetItem(const char[] uniqueId)

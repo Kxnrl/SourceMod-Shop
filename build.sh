@@ -28,9 +28,9 @@ mkdir build/scripts
 
 cp -rf SourcePawn/* addons/sourcemod/scripting
 
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/shop-core.sp -o"build/Game/plugins/shop-core.smx"
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/shop-chat.sp -o"build/Game/plugins/shop-chat.smx"
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/shop-skin.sp -o"build/Game/plugins/shop-skin.smx"
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/shop-core.sp -o"build/plugins/shop-core.smx"
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/shop-chat.sp -o"build/plugins/shop-chat.smx"
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/shop-skin.sp -o"build/plugins/shop-skin.smx"
 
 mv SQL build/scripts
 mv SourcePawn/* build/scripts

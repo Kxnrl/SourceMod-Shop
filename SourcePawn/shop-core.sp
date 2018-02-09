@@ -18,6 +18,8 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+#include <shop>
+
 #define PI_NAME "MagicGirl.NET - Shop :: Core [DARLING IN THE FRANXX]"
 #define PI_AUTH "Kyle"
 #define PI_DESC "In-game Shop for MagicGirl.NET"

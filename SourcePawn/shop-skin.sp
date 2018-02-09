@@ -26,6 +26,10 @@
 #include <sdktools_functions>
 #include <sdktools_stringtables>
 
+#if ( SOURCEMOD_V_MINOR == 9 )
+    #include <sdktools_variant_t>
+#endif
+
 #define COOKIE_TEs  0
 #define COOKIE_CTs  1
 #define COOKIE_ANY  2

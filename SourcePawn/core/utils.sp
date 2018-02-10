@@ -229,7 +229,6 @@ void UTIL_SellItem(int client, const char[] unique, Handle plugin, Function call
     g_MySQL.Query(SellItemCallback, m_szQuery, pack, DBPrio_High);
 }
 
-
 bool UTIL_IsItemFreeForAll(int itemid)
 {
     return (g_Items[itemid][bBuyable] && g_Items[itemid][iPrice][0] == 0 && g_Items[itemid][iPrice][1] == 0 && g_Items[itemid][iPrice][2] == 0 && g_Items[itemid][iPrice][3] == 0);

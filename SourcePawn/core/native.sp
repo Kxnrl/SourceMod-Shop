@@ -215,14 +215,14 @@ public int Native_ClientSellItem(Handle plugin, int numParams)
 public int Native_BuyItemMenu(Handle plugin, int numParams)
 {
     int client = GetNativeCell(1);
-    
+
     if(!g_ClientData[client][bLoaded])
         return;
     
     char unique[32];
     if(GetNativeString(2, unique, 32) != SP_ERROR_NONE)
         return;
-    
+
     DisplayBuyMenu(client, unique);
 }
 

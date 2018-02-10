@@ -454,8 +454,8 @@ public void OnMenuInventory(int client, const char[] uniqueId, bool inventory)
     menu.SetTitle("商店 - %s\n余额: %d G\n \n%s\n%s\n \n阵营: %s\n ", inventory ? "库存" : "展柜", MG_Shop_GetClientMoney(client), g_Skins[skin][szName], g_Skins[skin][szDesc], g_bIsGlobalMode ? "通用" : (g_Skins[skin][iTeam] == 3 ? "CT" : "TE"));
 
     menu.AddItem(uniqueId, "预览");
-    menu.AddItem(uniqueId, !inventory ? "购买" : !equip ? "装备" : "卸下");
-    menu.AddItem(uniqueId, inventory ? "售出" : "开箱");
+    menu.AddItem(uniqueId, !equip ? "装备" : "卸下", inventory ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
+    menu.AddItem(uniqueId, !inventory ? "购买" : "售出");
 
     menu.Display(client, 60);
 }
@@ -471,18 +471,23 @@ public int MenuHandler_InvMenu(Menu menu, MenuAction action, int param1, int par
             case 0: PrintToChat(param1, "[\x04Shop\x01]   \x07该功能目前不可用...");
             case 1: 
             {
-                if(MG_Shop_HasClientItem(param1, uniqueId))
-                {
-                    if(strcmp(handle, "装备") == 0)
-                        EquipSkin(param1, uniqueId);
-                    else
-                        UnEquipSkin(param1, uniqueId);
-                }
-                else MG_Shop_BuyItemMenu(param1, uniqueId);
+                if(strcmp(handle, "装备") == 0)
+                    EquipSkin(param1, uniqueId);
+                else
+                    UnEquipSkin(param1, uniqueId);
             }
-            case 2: PrintToChat(param1, "[\x04Shop\x01]   \x07该功能目前不可用...");
+            case 2:
+            {
+                if(!MG_Shop_HasClientItem(param1, uniqueId))
+                {
+                    MG_Shop_BuyItemMenu(param1, uniqueId);
+                    return;
+                }
+
+                PrintToChat(param1, "[\x04Shop\x01]   暂时不开放售出");
+            }
         }
-        
+
         MG_Shop_DisplayPreviousMenu(param1);
     }
     else if(action == MenuAction_Cancel && param2 == MenuCancel_ExitBack)
@@ -503,10 +508,7 @@ void EquipSkin(int client, const char[] uniqueId)
     PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   您已装备[\x10%s\x01]于%s\x01阵营", g_Skins[skin][szName], g_bIsGlobalMode ? "\x0A通用" : (g_Skins[skin][iTeam] == 3 ? "\x0BCT" : "\x05TE"));
 
     if(IsPlayerAlive(client) && GetSteamAccountID(client) == 88166525)
-    {
         PreSetModel(client);
-        //CreateTimer(1.0, Timer_FixArms, GetClientUserId(client));
-    }
 }
 
 void UnEquipSkin(int client, const char[] uniqueId)
@@ -557,80 +559,3 @@ void PreSetModel(int client)
 
     CreateTimer(0.02, Timer_SetClientModel, client, TIMER_FLAG_NO_MAPCHANGE);
 }
-/*
-public Action Timer_FixArms(Handle timer, int userid)
-{
-    int client = GetClientOfUserId(userid);
-    
-    if(!client || !IsPlayerAlive(client))
-        return Plugin_Stop;
-
-    ResetPlayerArms(client);
-
-    return Plugin_Stop;
-}
-
-void ResetPlayerArms(int client)
-{
-    ResetClientWeaponBySlot(client, 0);
-    ResetClientWeaponBySlot(client, 1);
-    while(ResetClientWeaponBySlot(client, 2)){}
-    while(ResetClientWeaponBySlot(client, 3)){}
-    while(ResetClientWeaponBySlot(client, 4)){}
-}
-
-public Action Timer_GiveWeapon(Handle timer, Handle pack)
-{
-    ResetPack(pack);
-    int client = ReadPackCell(pack);
-    int weapon = ReadPackCell(pack);
-    if(!IsClientInGame(client) || !IsPlayerAlive(client))
-    {
-        if(IsValidEdict(weapon))
-            AcceptEntityInput(weapon, "Kill");
-        return Plugin_Stop;
-    }
-
-    EquipPlayerWeapon(client, weapon);
-
-    return Plugin_Stop;
-}
-
-bool ResetClientWeaponBySlot(int client, int slot)
-{
-    int weapon = GetPlayerWeaponSlot(client, slot);
-
-    if(weapon == -1)
-        return false;
-
-    char classname[32];
-    GetWeaponClassname(weapon, classname, 32);
-    RemovePlayerItem(client, weapon);
-
-    Handle hPack;
-    CreateDataTimer(0.1, Timer_GiveWeapon, hPack, TIMER_FLAG_NO_MAPCHANGE);
-    WritePackCell(hPack, client);
-    WritePackCell(hPack, weapon);
-
-    return true;
-}
-
-bool GetWeaponClassname(int weapon, char[] classname, int maxLen)
-{
-    if(!GetEdictClassname(weapon, classname, maxLen))
-        return false;
-    
-    if(!HasEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
-        return false;
-    
-    switch(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
-    {
-        case 60: strcopy(classname, maxLen, "weapon_m4a1_silencer");
-        case 61: strcopy(classname, maxLen, "weapon_usp_silencer");
-        case 63: strcopy(classname, maxLen, "weapon_cz75a");
-        case 64: strcopy(classname, maxLen, "weapon_revolver");
-    }
-    
-    return true;
-}
-*/

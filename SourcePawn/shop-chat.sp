@@ -516,7 +516,8 @@ public void OnMenuInventory(int client, const char[] uniqueId, bool inventory)
 
 
     menu.AddItem(uniqueId, "预览");
-    menu.AddItem(uniqueId, !inventory ? "购买" : equip ? "卸下" : "装备");
+    menu.AddItem(uniqueId, !equip ? "装备" : "卸下", inventory ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
+    menu.AddItem(uniqueId, !inventory ? "购买" : "售出");
 
     menu.Display(client, 60);
 }
@@ -552,26 +553,30 @@ public int MenuHandler_InvMenu(Menu menu, MenuAction action, int param1, int par
             }
             case 1: 
             {
+                bool equip = false;
+                for(int i; i < 3; ++i)
+                {
+                    char data[32];
+                    GetClientCookie(param1, g_cookies[i], data, 32);
+                    if(strcmp(uniqueId, data) == 0)
+                        equip = true;
+                }
+                
+                if(!equip)
+                    EquipItem(param1, uniqueId);
+                else
+                    UnEquipItem(param1, UTIL_GetType(uniqueId));
+            }
+            case 2: 
+            {
                 if(MG_Shop_HasClientItem(param1, uniqueId))
                 {
-                    bool equip = false;
-                    for(int i; i < 3; ++i)
-                    {
-                        char data[32];
-                        GetClientCookie(param1, g_cookies[i], data, 32);
-                        if(strcmp(uniqueId, data) == 0)
-                            equip = true;
-                    }
-                    
-                    if(!equip)
-                        EquipItem(param1, uniqueId);
-                    else
-                        UnEquipItem(param1, UTIL_GetType(uniqueId));
-                }
-                else 
                     MG_Shop_BuyItemMenu(param1, uniqueId);
+                    return;
+                }
+                
+                PrintToChat(param1, "[\x04Shop\x01]   暂时不开放售出");
             }
-            case 2: PrintToChat(param1, "[\x04Shop\x01]   \x07该功能目前不可用...");
         }
 
         MG_Shop_DisplayPreviousMenu(param1);

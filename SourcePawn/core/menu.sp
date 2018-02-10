@@ -112,18 +112,15 @@ public int MenuHandler_ShopMenu(Menu menu, MenuAction action, int param1, int pa
     {
         char unique[32];
         menu.GetItem(param2, unique, 32);
-        
-        int itemid = UTIL_FindItemByUniqueId(unique);
-
-        iMenuLevels[param1] = 2;
-        iMenuParent[param1] = g_Items[itemid][iParent];
-        
-        DisplayItem(param1, itemid);
+        DisplayItem(param1, UTIL_FindItemByUniqueId(unique));
     }
 }
 
 void DisplayItem(int client, int itemid)
 {
+    iMenuLevels[client] = 2;
+    iMenuParent[client] = g_Items[itemid][iParent];
+
     if(g_Items[itemid][iCategory] == g_iFakeCategory)
     {
         DisplayShopMenu(client, bInventory[client], itemid, -1);
@@ -151,9 +148,9 @@ void DisplayPreviousMenu(int client)
 void DisplayBuyMenu(int client, const char[] unique)
 {
     int itemid = UTIL_FindItemByUniqueId(unique);
-    if(itemid == -1 || g_Items[itemid][iParent] == g_iFakeCategory)
+    if(itemid == -1)
         return;
-    
+
     iMenuLevels[client] = 3;
     iMenuParent[client] = itemid;
 

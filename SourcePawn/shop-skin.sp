@@ -523,7 +523,7 @@ public int MenuHandler_InvMenu(Menu menu, MenuAction action, int param1, int par
             }
         }
 
-        MG_Shop_DisplayPreviousMenu(param1);
+        MG_Shop_DisplayItemMenu(param1, uniqueId);
     }
     else if(action == MenuAction_Cancel && param2 == MenuCancel_ExitBack)
         MG_Shop_DisplayPreviousMenu(param1);

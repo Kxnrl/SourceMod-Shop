@@ -61,8 +61,9 @@ public void OnPluginStart()
     RegConsoleCmd("sm_tp",      Command_TP);
     RegConsoleCmd("sm_seeme",   Command_Mirror);
     
-    HookEventEx("player_death", Event_PlayerDeath, EventHookMode_Post);
-    
+    HookEventEx("player_spawn", Event_Player, EventHookMode_Post);
+    HookEventEx("player_death", Event_Player, EventHookMode_Post);
+
     sv_allow_thirdperson = FindConVar("sv_allow_thirdperson");
     mp_forcecamera = FindConVar("mp_forcecamera");
 }
@@ -73,7 +74,7 @@ public void OnClientConnected(int client)
     g_bThirdPerson[client] = false;
 }
 
-public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
+public void Event_Player(Event event, const char[] name, bool dontBroadcast)
 {
     CheckClientTP(GetClientOfUserId(event.GetInt("userid")));
 }

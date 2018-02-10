@@ -22,7 +22,7 @@ START TRANSACTION;
     /* UPDATE Cost */
     UPDATE  `dxg_users`
     SET     `money` = `money` - `price`
-    WHERE   `id` = `userId`;
+    WHERE   `uid` = `userId`;
 
     IF (ROW_COUNT() <> 0) THEN
         

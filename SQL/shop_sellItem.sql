@@ -28,7 +28,7 @@ START TRANSACTION;
         /* UPDATE Money */
         UPDATE  `dxg_users`
         SET     `money` = `money` + `price`
-        WHERE   `id` = `userId`;
+        WHERE   `uid` = `userId`;
 
         /* LOGGING */
         INSERT INTO `dxg_banklog`

@@ -20,6 +20,7 @@
 
 #include <shop>
 #include <clientprefs>
+#include <sdkhooks>
 #include <sdktools_sound>
 #include <sdktools_engine>
 #include <sdktools_entinput>
@@ -73,6 +74,10 @@ Handle g_cookieSkin[3];
 
 int g_iDataIndex[MAXPLAYERS+1] = {-1, ...};
 int g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+int g_iPreMdlRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+Handle g_tPreMdl[MAXPLAYERS+1];
+
+int g_iPreviewEnt[2048];
 
 bool g_bIsGlobalMode = false;
 
@@ -232,17 +237,38 @@ void PrepareSound(const char[] sound)
     AddToStringTable(FindStringTable("soundprecache"), szPath);
 }
 
+public void OnClientConnected(int client)
+{
+    g_iCameraRef[client] = INVALID_ENT_REFERENCE;
+    g_iPreMdlRef[client] = INVALID_ENT_REFERENCE;
+}
+
 public void OnClientDisconnect(int client)
 {
     if(!IsClientInGame(client))
         return;
-    
+
+    if(g_tPreMdl[client] != INVALID_HANDLE)
+        KillTimer(g_tPreMdl[client]);
+    g_tPreMdl[client] = INVALID_HANDLE;
+
     Timer_ClearCamera(INVALID_HANDLE, client);
+    Timer_ClearPreMdl(INVALID_HANDLE, client);
 }
 
 public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
-    PreSetModel(GetClientOfUserId(event.GetInt("userid")));
+    int client = GetClientOfUserId(event.GetInt("userid"));
+    
+    if(g_tPreMdl[client] != INVALID_HANDLE)
+        KillTimer(g_tPreMdl[client]);
+
+    Timer_ClearCamera(INVALID_HANDLE, client);
+    Timer_ClearPreMdl(INVALID_HANDLE, client);
+
+    // set model
+    PreSetModel(client);
+
     return Plugin_Continue;
 }
 
@@ -271,7 +297,16 @@ public Action Timer_SetClientModel_Human(Handle timer, int client)
 
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
-    RequestFrame(Frame_FirstPersonDeath, event.GetInt("userid"));
+    int userid = event.GetInt("userid");
+    int client = GetClientOfUserId(client);
+
+    if(g_tPreMdl[client] != INVALID_HANDLE)
+        KillTimer(g_tPreMdl[client]);
+
+    Timer_ClearPreMdl(INVALID_HANDLE, client);
+
+    // first person death
+    RequestFrame(Frame_FirstPersonDeath, userid);
 }
 
 void Frame_FirstPersonDeath(int userid)
@@ -468,7 +503,7 @@ public int MenuHandler_InvMenu(Menu menu, MenuAction action, int param1, int par
         menu.GetItem(param2, uniqueId, 32, _, handle, 32);
         switch(param2)
         {
-            case 0: PrintToChat(param1, "[\x04Shop\x01]   \x07该功能目前不可用...");
+            case 0: PreviewSkin(param1, uniqueId);
             case 1: 
             {
                 if(strcmp(handle, "装备") == 0)
@@ -523,8 +558,6 @@ void UnEquipSkin(int client, const char[] uniqueId)
 
 void PreSetModel(int client)
 {
-    Timer_ClearCamera(INVALID_HANDLE, client);
-    
     g_iDataIndex[client] = -1;
     
     int team;
@@ -558,4 +591,99 @@ void PreSetModel(int client)
     }
 
     CreateTimer(0.02, Timer_SetClientModel, client, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+void PreviewSkin(int client, const char[] unique)
+{
+    int data = UTIL_GetSkin(unique);
+    if(data == -1)
+        return;
+    
+    if(g_tPreMdl[client] != INVALID_HANDLE)
+        KillTimer(g_tPreMdl[client]);
+
+    Timer_ClearPreMdl(INVALID_HANDLE, client);
+    
+    int m_iViewModel = CreateEntityByName("prop_dynamic_override");
+    
+    char m_szTargetName[32];
+    FormatEx(m_szTargetName, 32, "Store_Preview_%d", m_iViewModel);
+    DispatchKeyValue(m_iViewModel, "targetname", m_szTargetName);
+
+    DispatchKeyValue(m_iViewModel, "spawnflags", "64");
+    DispatchKeyValue(m_iViewModel, "model", g_Skins[data][szModel]);
+    DispatchKeyValue(m_iViewModel, "rendermode", "0");
+    DispatchKeyValue(m_iViewModel, "renderfx", "0");
+    DispatchKeyValue(m_iViewModel, "rendercolor", "255 255 255");
+    DispatchKeyValue(m_iViewModel, "renderamt", "255");
+    DispatchKeyValue(m_iViewModel, "solid", "0");
+    
+    DispatchSpawn(m_iViewModel);
+    
+    SetEntProp(m_iViewModel, Prop_Send, "m_CollisionGroup", 11);
+    
+    AcceptEntityInput(m_iViewModel, "Enable");
+    
+    int offset = GetEntSendPropOffs(m_iViewModel, "m_clrGlow");
+    SetEntProp(m_iViewModel, Prop_Send, "m_bShouldGlow", true, true);
+    SetEntProp(m_iViewModel, Prop_Send, "m_nGlowStyle", 0);
+    SetEntPropFloat(m_iViewModel, Prop_Send, "m_flGlowMaxDist", 2000.0);
+
+    //Miku Green
+    SetEntData(m_iViewModel, offset    ,  57, _, true);
+    SetEntData(m_iViewModel, offset + 1, 197, _, true);
+    SetEntData(m_iViewModel, offset + 2, 187, _, true);
+    SetEntData(m_iViewModel, offset + 3, 255, _, true);
+
+    float m_fOrigin[3], m_fAngles[3], m_fRadians[2], m_fPosition[3];
+
+    GetClientAbsOrigin(client, m_fOrigin);
+    GetClientAbsAngles(client, m_fAngles);
+
+    m_fRadians[0] = DegToRad(m_fAngles[0]);
+    m_fRadians[1] = DegToRad(m_fAngles[1]);
+
+    m_fPosition[0] = m_fOrigin[0] + 64 * Cosine(m_fRadians[0]) * Cosine(m_fRadians[1]);
+    m_fPosition[1] = m_fOrigin[1] + 64 * Cosine(m_fRadians[0]) * Sine(m_fRadians[1]);
+    m_fPosition[2] = m_fOrigin[2] + 4 * Sine(m_fRadians[0]);
+    
+    m_fAngles[0] *= -1.0;
+    m_fAngles[1] *= -1.0;
+
+    TeleportEntity(m_iViewModel, m_fPosition, m_fAngles, NULL_VECTOR);
+
+    g_iPreMdlRef[client] = EntIndexToEntRef(m_iViewModel);
+
+    SDKHook(m_iViewModel, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
+    g_iPreviewEnt[m_iViewModel] = client;
+    
+    g_tPreMdl[client] = CreateTimer(45.0, Timer_ClearPreMdl, client);
+    
+    PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   您正在预览皮肤[\x04%s\x01]", g_Skins[data][szName]);
+}
+
+public Action Timer_ClearPreMdl(Handle timer, int client)
+{
+    g_tPreMdl[client] = INVALID_HANDLE;
+    
+    if(g_iPreMdlRef[client] != INVALID_ENT_REFERENCE)
+    {
+        int entity = EntRefToEntIndex(g_iPreMdlRef[client]);
+
+        if(IsValidEdict(entity))
+        {
+            g_iPreviewEnt[entity] = 0;
+            SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
+            AcceptEntityInput(entity, "Kill");
+        }
+        
+        g_iPreMdlRef[client] = INVALID_ENT_REFERENCE;
+    }
+
+    return Plugin_Stop;
+}
+
+public Action Hook_SetTransmit_Preview(int ent, int client)
+{
+    return (g_iPreviewEnt[ent] == client) ? Plugin_Continue : Plugin_Handled;
 }

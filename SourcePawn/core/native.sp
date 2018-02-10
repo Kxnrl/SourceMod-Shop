@@ -39,6 +39,7 @@ void Native_AskPluginLoad2()
 
     //menu
     CreateNative("MG_Shop_BuyItemMenu",                 Native_BuyItemMenu);
+    CreateNative("MG_Shop_DisplayItemMenu",             Native_DisplayItemMenu);
     CreateNative("MG_Shop_DisplayPreviousMenu",         Native_DisplayPreviousMenu);
 }
 
@@ -222,7 +223,21 @@ public int Native_BuyItemMenu(Handle plugin, int numParams)
     if(GetNativeString(2, unique, 32) != SP_ERROR_NONE)
         return;
     
-    Chat(client, "暂时不开放购买功能...");
+    DisplayBuyMenu(client, unique);
+}
+
+public int Native_DisplayItemMenu(Handle plugin, int numParams)
+{
+    char unique[32];
+    if(GetNativeString(2, unique, 32) != SP_ERROR_NONE)
+        return;
+    
+    int itemid = UTIL_FindItemByUniqueId(unique);
+    
+    if(itemid == -1)
+        return;
+    
+    DisplayItem(GetNativeCell(1), itemid);
 }
 
 public int Native_DisplayPreviousMenu(Handle plugin, int numParams)

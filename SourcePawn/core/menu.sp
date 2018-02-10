@@ -117,20 +117,24 @@ public int MenuHandler_ShopMenu(Menu menu, MenuAction action, int param1, int pa
 
         iMenuLevels[param1] = 2;
         iMenuParent[param1] = g_Items[itemid][iParent];
-
-        if(g_Items[itemid][iCategory] != g_iFakeCategory)
-        {
-            Call_StartFunction(g_Category[g_Items[itemid][iCategory]][hPlugin], g_Category[g_Items[itemid][iCategory]][fnMenu]);
-            Call_PushCell(param1);
-            Call_PushString(unique);
-            Call_PushCell(UTIL_HasClientItem(param1, unique));
-            Call_Finish();
-            
-            return;
-        }
-
-        DisplayShopMenu(param1, bInventory[param1], itemid, -1);
+        
+        DisplayItem(param1, itemid);
     }
+}
+
+void DisplayItem(int client, int itemid)
+{
+    if(g_Items[itemid][iCategory] == g_iFakeCategory)
+    {
+        DisplayShopMenu(client, bInventory[client], itemid, -1);
+        return;
+    }
+
+    Call_StartFunction(g_Category[g_Items[itemid][iCategory]][hPlugin], g_Category[g_Items[itemid][iCategory]][fnMenu]);
+    Call_PushCell(client);
+    Call_PushString(g_Items[itemid][szUniqueId]);
+    Call_PushCell(UTIL_HasClientItem(client, g_Items[itemid][szUniqueId]));
+    Call_Finish();
 }
 
 void DisplayPreviousMenu(int client)
@@ -140,5 +144,58 @@ void DisplayPreviousMenu(int client)
         case 0: DisplayMainMenu(client);
         case 1: DisplayMainMenu(client);
         case 2: DisplayShopMenu(client, bInventory[client], iMenuParent[client]);
+        case 3: DisplayItem(client, iMenuParent[client]);
+    }
+}
+
+void DisplayBuyMenu(int client, const char[] unique)
+{
+    int itemid = UTIL_FindItemByUniqueId(unique);
+    if(itemid == -1 || g_Items[itemid][iParent] == g_iFakeCategory)
+        return;
+    
+    iMenuLevels[client] = 3;
+    iMenuParent[client] = itemid;
+
+    Menu menu = new Menu(MenuHandler_BuyMenu);
+    
+    menu.ExitButton = true;
+    menu.ExitBackButton = true;
+    
+    menu.SetTitle("购买 [ %s ]\n ", g_Items[itemid][szFullName]);
+    
+    char fmt[32];
+
+    // 1d
+    FormatEx(fmt, 32, "1天 [%dG]", g_Items[itemid][iPrice][0]);
+    menu.AddItem(unique, fmt, (g_Items[itemid][iPrice][0] > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
+    
+    // 1w
+    FormatEx(fmt, 32, "1周 [%dG]", g_Items[itemid][iPrice][1]);
+    menu.AddItem(unique, fmt, (g_Items[itemid][iPrice][1] > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
+    
+    // 1m
+    FormatEx(fmt, 32, "1月 [%dG]", g_Items[itemid][iPrice][2]);
+    menu.AddItem(unique, fmt, (g_Items[itemid][iPrice][2] > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
+    
+    // perm
+    FormatEx(fmt, 32, "永久 [%dG]", g_Items[itemid][iPrice][3]);
+    menu.AddItem(unique, fmt, (g_Items[itemid][iPrice][3] > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
+
+    menu.Display(client, 0);
+}
+
+public int MenuHandler_BuyMenu(Menu menu, MenuAction action, int param1, int param2)
+{
+    if(action == MenuAction_End)
+        delete menu;
+    else if(action == MenuAction_Cancel && param2 == MenuCancel_ExitBack)
+        DisplayPreviousMenu(param1);
+    else if(action == MenuAction_Select)
+    {
+        char unique[32];
+        menu.GetItem(param2, unique, 32);
+        int itemid = UTIL_FindItemByUniqueId(unique);
+        UTIL_BuyItem(param1, g_Items[itemid][iPrice][param2], unique, INVALID_HANDLE, INVALID_FUNCTION);
     }
 }

@@ -44,6 +44,7 @@ native bool MG_Shop_ClientCostMoney(int client, int cost, const char[] reason = 
 native void MG_Shop_ClientBuyItem(int client, int cost, const char[] uniqueId, BuyItemFunc buyFunc);
 native void MG_Shop_ClientSellItem(int client, const char[] uniqueId, SellItemFunc sellFunc);
 native void MG_Shop_BuyItemMenu(int client, const char[] uniqueId);
+native void MG_Shop_DisplayItemMenu(int client, const char[] uniqueId);
 native void MG_Shop_DisplayPreviousMenu(int client);
 
 public SharedPlugin __pl_shop_core =

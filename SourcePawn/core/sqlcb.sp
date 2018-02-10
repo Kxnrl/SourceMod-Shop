@@ -143,6 +143,10 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
         Call_PushString(unique);
         Call_Finish();
     }
+    else
+        DisplayItem(client, g_ClientItem[client][items][iItemIndex]);
+    
+    Chat(client, "您花费了\x04%dG\x01购买了[\x10%s\x01]", cost, g_Items[g_ClientItem[client][items][iItemIndex]][szFullName]);
 }
 
 public void SellItemCallback(Database db, DBResultSet results, const char[] error, DataPack pack)

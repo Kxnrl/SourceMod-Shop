@@ -32,12 +32,17 @@ START TRANSACTION;
     
         /* GET INSERT ID */
         SET dbIndex = LAST_INSERT_ID();
-    
+
         /* LOGGING */
         INSERT INTO `dxg_banklog`
         VALUES (DEFAULT, `userId`, `logCost`, `reason`, UNIX_TIMESTAMP());
+
+        COMMIT;
     
     ELSE 
+
+        /* rollback */
+        ROLLBACK;
 
         /* tell plugin failure */
         SET dbIndex = -1;

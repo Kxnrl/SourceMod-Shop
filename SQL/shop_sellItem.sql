@@ -23,8 +23,8 @@ START TRANSACTION;
 
     
 
-    IF (ROW_COUNT() <> 0) THEN
-        
+    IF (ROW_COUNT() > 0) THEN
+
         /* UPDATE Money */
         UPDATE  `dxg_users`
         SET     `money` = `money` + `price`
@@ -34,10 +34,15 @@ START TRANSACTION;
         INSERT INTO `dxg_banklog`
         VALUES (DEFAULT, `userId`, `price`, `reason`, UNIX_TIMESTAMP());
         
+        COMMIT;
+
         SET result_code = 0;
 
     ELSE 
 
+        /* rollback */
+        ROLLBACK;
+    
         /* tell plugin failure */
         SET result_code = -1;
 

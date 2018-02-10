@@ -242,44 +242,7 @@ public void OnClientDisconnect(int client)
 
 public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
-    int client = GetClientOfUserId(event.GetInt("userid"));
-    
-    Timer_ClearCamera(INVALID_HANDLE, client);
-    
-    g_iDataIndex[client] = -1;
-    
-    int team;
-
-    if(g_bIsGlobalMode)
-        team = 2;
-    else
-        team = GetClientTeam(client) - 2;
-    
-    if(team > 2 || team < 0)
-        return Plugin_Continue;
-
-    char skin_uid[32];
-    GetClientCookie(client, g_cookieSkin[team], skin_uid, 32);
-    
-    if(strlen(skin_uid) < 4 || !MG_Shop_HasClientItem(client, skin_uid))
-    {
-        if(g_pZombieReloaded)
-            CreateTimer(0.02, Timer_SetClientModel_Human, client, TIMER_FLAG_NO_MAPCHANGE);
-        
-        return Plugin_Continue;
-    }
-    
-    g_iDataIndex[client] = UTIL_GetSkin(skin_uid);
-    if(g_iDataIndex[client] == -1)
-    {
-        if(g_pZombieReloaded)
-            CreateTimer(0.02, Timer_SetClientModel_Human, client, TIMER_FLAG_NO_MAPCHANGE);
-
-        return Plugin_Continue;
-    }
-
-    CreateTimer(0.02, Timer_SetClientModel, client, TIMER_FLAG_NO_MAPCHANGE);
-
+    PreSetModel(GetClientOfUserId(event.GetInt("userid")));
     return Plugin_Continue;
 }
 
@@ -538,6 +501,12 @@ void EquipSkin(int client, const char[] uniqueId)
         SetClientCookie(client, g_cookieSkin[g_Skins[skin][iTeam]-2], uniqueId);
 
     PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   您已装备[\x10%s\x01]于%s\x01阵营", g_Skins[skin][szName], g_bIsGlobalMode ? "\x0A通用" : (g_Skins[skin][iTeam] == 3 ? "\x0BCT" : "\x05TE"));
+
+    if(IsPlayerAlive(client) && GetSteamAccountID(client) == 88166525)
+    {
+        PreSetModel(client);
+        CreateTimer(1.0, Timer_FixArms, GetClientUserId(client));
+    }
 }
 
 void UnEquipSkin(int client, const char[] uniqueId)
@@ -548,4 +517,119 @@ void UnEquipSkin(int client, const char[] uniqueId)
     SetClientCookie(client, g_cookieSkin[team], "");
 
     PrintToChat(client, "[\x04Shop\x01]  ***\x10Skin\x01***   您已卸下%s\x01阵营的皮肤", g_bIsGlobalMode ? "\x0A通用" : (g_Skins[skin][iTeam] == 3 ? "\x0BCT" : "\x05TE"));
+}
+
+void PreSetModel(int client)
+{
+    Timer_ClearCamera(INVALID_HANDLE, client);
+    
+    g_iDataIndex[client] = -1;
+    
+    int team;
+
+    if(g_bIsGlobalMode)
+        team = 2;
+    else
+        team = GetClientTeam(client) - 2;
+
+    if(team > 2 || team < 0)
+        return;
+
+    char skin_uid[32];
+    GetClientCookie(client, g_cookieSkin[team], skin_uid, 32);
+    
+    if(strlen(skin_uid) < 4 || !MG_Shop_HasClientItem(client, skin_uid))
+    {
+        if(g_pZombieReloaded)
+            CreateTimer(0.02, Timer_SetClientModel_Human, client, TIMER_FLAG_NO_MAPCHANGE);
+        
+        return;
+    }
+    
+    g_iDataIndex[client] = UTIL_GetSkin(skin_uid);
+    if(g_iDataIndex[client] == -1)
+    {
+        if(g_pZombieReloaded)
+            CreateTimer(0.02, Timer_SetClientModel_Human, client, TIMER_FLAG_NO_MAPCHANGE);
+
+        return;
+    }
+
+    CreateTimer(0.02, Timer_SetClientModel, client, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action Timer_FixArms(Handle timer, int userid)
+{
+    int client = GetClientOfUserId(userid);
+    
+    if(!client || !IsPlayerAlive(client))
+        return Plugin_Stop;
+
+    ResetPlayerArms(client);
+
+    return Plugin_Stop;
+}
+
+void ResetPlayerArms(int client)
+{
+    ResetClientWeaponBySlot(client, 0);
+    ResetClientWeaponBySlot(client, 1);
+    while(ResetClientWeaponBySlot(client, 2)){}
+    while(ResetClientWeaponBySlot(client, 3)){}
+    while(ResetClientWeaponBySlot(client, 4)){}
+}
+
+public Action Timer_GiveWeapon(Handle timer, Handle pack)
+{
+    ResetPack(pack);
+    int client = ReadPackCell(pack);
+    int weapon = ReadPackCell(pack);
+    if(!IsClientInGame(client) || !IsPlayerAlive(client))
+    {
+        if(IsValidEdict(weapon))
+            AcceptEntityInput(weapon, "Kill");
+        return Plugin_Stop;
+    }
+
+    EquipPlayerWeapon(client, weapon);
+
+    return Plugin_Stop;
+}
+
+bool ResetClientWeaponBySlot(int client, int slot)
+{
+    int weapon = GetPlayerWeaponSlot(client, slot);
+
+    if(weapon == -1)
+        return false;
+
+    char classname[32];
+    GetWeaponClassname(weapon, classname, 32);
+    RemovePlayerItem(client, weapon);
+
+    Handle hPack;
+    CreateDataTimer(0.1, Timer_GiveWeapon, hPack, TIMER_FLAG_NO_MAPCHANGE);
+    WritePackCell(hPack, client);
+    WritePackCell(hPack, weapon);
+
+    return true;
+}
+
+bool GetWeaponClassname(int weapon, char[] classname, int maxLen)
+{
+    if(!GetEdictClassname(weapon, classname, maxLen))
+        return false;
+    
+    if(!HasEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
+        return false;
+    
+    switch(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
+    {
+        case 60: strcopy(classname, maxLen, "weapon_m4a1_silencer");
+        case 61: strcopy(classname, maxLen, "weapon_usp_silencer");
+        case 63: strcopy(classname, maxLen, "weapon_cz75a");
+        case 64: strcopy(classname, maxLen, "weapon_revolver");
+    }
+    
+    return true;
 }

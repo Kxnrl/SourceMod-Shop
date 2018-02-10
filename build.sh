@@ -31,6 +31,7 @@ cp -rf SourcePawn/* addons/sourcemod/scripting
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/shop-core.sp -o"build/plugins/shop-core.smx"
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/shop-chat.sp -o"build/plugins/shop-chat.smx"
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/shop-skin.sp -o"build/plugins/shop-skin.smx"
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/shop-thirdperson.sp -o"build/plugins/shop-thirdperson.smx"
 
 mv SQL build/scripts
 mv SourcePawn/* build/scripts
@@ -47,3 +48,4 @@ cd plugins
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /PuellaMagi/Raw/ shop-core.smx"
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /PuellaMagi/Raw/ shop-chat.smx"
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /PuellaMagi/Raw/ shop-skin.smx"
+lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /PuellaMagi/Raw/ shop-thirdperson.smx"

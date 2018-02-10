@@ -124,7 +124,7 @@ public void OnPluginStart()
     RegConsoleCmd("sm_store",       Command_Shop);
     RegConsoleCmd("buyammo1",       Command_Shop);
     RegConsoleCmd("sm_inventory",   Command_Inv);
-    
+
     // clients
     for(int client = 1; client <= MaxClients; ++client)
         if(IsClientConnected(client))

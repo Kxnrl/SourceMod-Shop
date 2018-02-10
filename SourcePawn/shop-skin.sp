@@ -505,7 +505,7 @@ void EquipSkin(int client, const char[] uniqueId)
     if(IsPlayerAlive(client) && GetSteamAccountID(client) == 88166525)
     {
         PreSetModel(client);
-        CreateTimer(1.0, Timer_FixArms, GetClientUserId(client));
+        //CreateTimer(1.0, Timer_FixArms, GetClientUserId(client));
     }
 }
 
@@ -557,7 +557,7 @@ void PreSetModel(int client)
 
     CreateTimer(0.02, Timer_SetClientModel, client, TIMER_FLAG_NO_MAPCHANGE);
 }
-
+/*
 public Action Timer_FixArms(Handle timer, int userid)
 {
     int client = GetClientOfUserId(userid);
@@ -633,3 +633,4 @@ bool GetWeaponClassname(int weapon, char[] classname, int maxLen)
     
     return true;
 }
+*/

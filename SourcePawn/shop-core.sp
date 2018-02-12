@@ -268,6 +268,9 @@ public Action Command_Inv(int client, int args)
 
 public Action Timer_EarnMoney(Handle timer, int client)
 {
+    if(!IsClientInGame(client))
+        return Plugin_Continue;
+    
     if(GetClientCount(true) < 6)
     {
         Chat(client, "服务器内人数不足,需要最少6人才能获得在线时长奖励");

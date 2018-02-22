@@ -94,15 +94,15 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
     Handle plugin = pack.ReadCell();
     Function callback = pack.ReadFunction();
     delete pack;
+    
+    if(!client)
+        return;
 
     if(results == null || error[0])
     {
-        LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "BuyItemCallback -> SQL Error:  %s -> %N -> %d -> %s -> %d -> %d", error, client, cost, unique, length);
+        LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "BuyItemCallback -> SQL Error:  %s -> %N -> %d -> %s -> %d", error, client, cost, unique, length);
         return;
     }
-
-    if(!client)
-        return;
     
     if(!results.FetchRow())
     {

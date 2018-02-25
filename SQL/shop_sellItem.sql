@@ -15,12 +15,7 @@ SQL SECURITY INVOKER BEGIN
         BEGIN
             ROLLBACK;
             SET result_code = -1;
-        END;
-    
-    DECLARE EXIT handler FOR SQLWARNING
-        BEGIN
-            ROLLBACK;
-            SET result_code = -1;
+            SELECT price, result_code;
         END;
 
     START TRANSACTION;

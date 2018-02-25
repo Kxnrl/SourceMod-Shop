@@ -460,7 +460,7 @@ public void OnMenuInventory(int client, const char[] uniqueId, bool inventory)
 {
     Menu menu = new Menu(MenuHandler_InvMenu);
     
-    menu.ExitButton = false;
+    menu.ExitButton = true;
     menu.ExitBackButton = true;
     
     int skin = UTIL_GetSkin(uniqueId);

@@ -10,19 +10,14 @@ IN
 
 SQL SECURITY INVOKER BEGIN
 
-    DECLARE dbIndex TINYINT(3) DEFAULT -1;
-    DECLARE logCost INT(11);
-    
+    DECLARE dbIndex INT(11) DEFAULT -1;
+    DECLARE logCost INT(11) DEFAULT 0;
+
     DECLARE EXIT handler FOR SQLEXCEPTION
         BEGIN
             ROLLBACK;
             SET dbIndex = -1;
-        END;
-    
-    DECLARE EXIT handler FOR SQLWARNING
-        BEGIN
-            ROLLBACK;
-            SET dbIndex = -1;
+            SELECT dbIndex, logCost;
         END;
 
     START TRANSACTION;

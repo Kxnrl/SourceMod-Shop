@@ -242,6 +242,9 @@ public Action Timer_ReAuthorize(Handle timer, int client)
 
 public Action Command_Shop(int client, int args)
 {
+    if(!IsClientInGame(client))
+        return Plugin_Handled;
+    
     if(!g_ClientData[client][bLoaded])
     {
         Chat(client, "\x05请等待数据加载完毕...");

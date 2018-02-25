@@ -9,19 +9,15 @@ IN
 
 SQL SECURITY INVOKER
 
-BEGIN
-
-DECLARE result_code TINYINT(3);
-
 START TRANSACTION;
+
+    DECLARE result_code TINYINT(3);
 
     DELETE FROM `dxg_inventory`
     WHERE
             `id` = `dbIndex`
         AND
             `uid` = `userId`;
-
-    
 
     IF (ROW_COUNT() > 0) THEN
 

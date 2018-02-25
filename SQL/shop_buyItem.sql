@@ -10,12 +10,10 @@ IN
 
 SQL SECURITY INVOKER
 
-BEGIN
-
-DECLARE dbIndex TINYINT(3) DEFAULT -1;
-DECLARE logCost INT(11);
-
 START TRANSACTION;
+
+    DECLARE dbIndex TINYINT(3) DEFAULT -1;
+    DECLARE logCost INT(11);
 
     SET logCost = 0 - `price`;
 

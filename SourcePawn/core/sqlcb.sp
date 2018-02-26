@@ -115,7 +115,7 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
     
     if(dbIndex <= 0)
     {
-        LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "BuyItemCallback -> SQL Error:  dbIndex failed -> %N -> %d -> %s -> %d", client, cost, unique, length);
+        LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "BuyItemCallback -> SQL Error:  dbIndex [%d] -> %N -> %d -> %s -> %d", dbIndex, client, cost, unique, length);
         return;
     }
     

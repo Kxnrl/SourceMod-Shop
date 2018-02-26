@@ -144,10 +144,15 @@ public void OnAllPluginsLoaded()
 // why use public
 public void ConnectAndLoad()
 {
+    if(g_MySQL != null)
+        return;
+
     char error[256];
+
+    // connect
     g_MySQL = SQL_Connect("default", false, error, 256);
     if(g_MySQL == null)
-        SetFailState("Connect to database Error.");
+        SetFailState("Connect to database Error. -> %s", error);
 
     g_MySQL.SetCharset("utf8");
 

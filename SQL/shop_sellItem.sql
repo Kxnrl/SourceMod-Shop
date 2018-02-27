@@ -14,7 +14,7 @@ SQL SECURITY INVOKER BEGIN
     DECLARE EXIT handler FOR SQLEXCEPTION
         BEGIN
             ROLLBACK;
-            SET result_code = -1;
+            SET result_code = -2;
             SELECT price, result_code;
         END;
 

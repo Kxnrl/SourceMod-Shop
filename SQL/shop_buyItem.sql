@@ -16,7 +16,7 @@ SQL SECURITY INVOKER BEGIN
     DECLARE EXIT handler FOR SQLEXCEPTION
         BEGIN
             ROLLBACK;
-            SET dbIndex = -1;
+            SET dbIndex = -2;
             SELECT dbIndex, logCost;
         END;
 

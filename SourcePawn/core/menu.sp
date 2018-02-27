@@ -91,8 +91,8 @@ void DisplayShopMenu(int client, bool invMode, int parent = -1, int lastItem = -
     if(menu.ItemCount == 0)
     {
         Chat(client, "\x07当前%s无物品可用...", invMode ? "库存" : "商店");
-        DisplayMainMenu(client);
         delete menu;
+        DisplayPreviousMenu(client);
         return;
     }
 

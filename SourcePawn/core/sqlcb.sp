@@ -97,16 +97,22 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
     
     if(!client)
         return;
-
+    
+    int itemid = UTIL_FindItemByUniqueId(unique);
+    
     if(results == null || error[0])
     {
         LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "BuyItemCallback -> SQL Error:  %s -> %N -> %d -> %s -> %d", error, client, cost, unique, length);
+        Chat("购买发生异常, 错误代码\x07Code\x01:\x02000");
+        DisplayItem(client, itemid);
         return;
     }
     
     if(!results.FetchRow())
     {
         LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "BuyItemCallback -> SQL Error:  Can not fetch row -> %N -> %d -> %s -> %d", client, cost, unique, length);
+        Chat("购买发生异常, 错误代码\x07Code\x01:\x02001");
+        DisplayItem(client, itemid);
         return;
     }
     
@@ -116,6 +122,8 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
     if(dbIndex <= 0)
     {
         LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "BuyItemCallback -> SQL Error:  dbIndex [%d] -> %N -> %d -> %s -> %d", dbIndex, client, cost, unique, length);
+        Chat("购买发生异常, 错误代码\x07Code\x01:\x02002");
+        DisplayItem(client, itemid);
         return;
     }
     
@@ -123,7 +131,7 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
 
     int items = g_ClientData[client][iItems];
     
-    g_ClientItem[client][items][iItemIndex] = UTIL_FindItemByUniqueId(unique);
+    g_ClientItem[client][items][iItemIndex] = itemid;
 
     if(g_ClientItem[client][items][iItemIndex] != -1)
     {
@@ -144,7 +152,7 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
         Call_Finish();
     }
     else
-        DisplayItem(client, g_ClientItem[client][items][iItemIndex]);
+        DisplayItem(client, itemid);
     
     Chat(client, "您花费了\x04%dG\x01购买了[\x10%s\x01]", cost, g_Items[g_ClientItem[client][items][iItemIndex]][szFullName]);
 }
@@ -188,7 +196,7 @@ public void SellItemCallback(Database db, DBResultSet results, const char[] erro
     for(int i = 0; i < g_ClientData[client][iItems]; ++i)
         if(itemid == g_ClientItem[client][i][iItemIndex])
             g_ClientItem[client][i][iDateOfExpiration] = -1;
-        
+
     if(callback != INVALID_FUNCTION)
     {
         Call_StartFunction(plugin, callback);

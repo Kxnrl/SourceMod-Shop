@@ -239,7 +239,7 @@ public Action Timer_ReAuthorize(Handle timer, int client)
     if(!IsClientInGame(client) || g_ClientData[client][bLoaded])
         return Plugin_Stop;
 
-    OnClientConnected(client);
+    OnClientDisconnect(client);
     OnClientPostAdminCheck(client);
 
     return Plugin_Stop;

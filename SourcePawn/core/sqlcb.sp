@@ -24,7 +24,7 @@ public void LoadClientCallback(Database db, DBResultSet results, const char[] er
     if(results == null || error[0])
     {
         LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "LoadClientCallback -> SQL Error:  %s -> \"%L\"", error, client);
-        CreateTimer(5.0, Timer_ReAuthorize, client, TIMER_FLAG_NO_MAPCHANGE);
+        CreateTimer(1.0, Timer_ReAuthorize, client, TIMER_FLAG_NO_MAPCHANGE);
         return;
     }
 
@@ -52,7 +52,7 @@ public void LoadInventoryCallback(Database db, DBResultSet results, const char[]
     if(results == null || error[0])
     {
         LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "LoadClientCallback -> SQL Error:  %s -> \"%L\"", error, client);
-        CreateTimer(5.0, Timer_ReAuthorize, client, TIMER_FLAG_NO_MAPCHANGE);
+        CreateTimer(1.0, Timer_ReAuthorize, client, TIMER_FLAG_NO_MAPCHANGE);
         return;
     }
     
@@ -93,6 +93,7 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
     int length = pack.ReadCell();
     Handle plugin = pack.ReadCell();
     Function callback = pack.ReadFunction();
+    float processed = GetEngineTime() - pack.ReadFloat();
     delete pack;
     
     if(!client)
@@ -155,6 +156,9 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
         DisplayItem(client, itemid);
     
     Chat(client, "您花费了\x04%dG\x01购买了[\x10%s\x01]", cost, g_Items[g_ClientItem[client][items][iItemIndex]][szFullName]);
+
+    if(processed >= 0.5)
+        LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_msg.log", "BuyItemCallback -> Processed in %f seconds -> dbIndex [%d] -> %N -> %d -> %s -> %d", processed, dbIndex, client, cost, unique, length);
 }
 
 public void SellItemCallback(Database db, DBResultSet results, const char[] error, DataPack pack)
@@ -164,6 +168,7 @@ public void SellItemCallback(Database db, DBResultSet results, const char[] erro
     pack.ReadString(unique, 32);
     Handle plugin = pack.ReadCell();
     Function callback = pack.ReadFunction();
+    float processed = GetEngineTime() - pack.ReadFloat();
     delete pack;
 
     if(results == null || error[0])
@@ -205,6 +210,9 @@ public void SellItemCallback(Database db, DBResultSet results, const char[] erro
         Call_PushString(unique);
         Call_Finish();
     }
+    
+    if(processed >= 0.5)
+        LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_msg.log", "SellItemCallback -> Processed in %f seconds -> dbIndex [%d] -> %N -> %d -> %s -> %d", processed, dbIndex, client, cost, unique, length);
 }
 
 public void QueryNoCallback(Database db, DBResultSet results, const char[] error, DataPack pack)

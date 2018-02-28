@@ -177,6 +177,7 @@ void UTIL_BuyItem(int client, int cost, const char[] unique, Handle plugin, Func
     pack.WriteCell(length);
     pack.WriteCell(plugin);
     pack.WriteFunction(callback);
+    pack.WriteFloat(GetEngineTime());
     pack.Reset();
     
     char m_szQuery[256];
@@ -221,6 +222,7 @@ void UTIL_SellItem(int client, const char[] unique, Handle plugin, Function call
     pack.WriteString(unique);
     pack.WriteCell(plugin);
     pack.WriteFunction(callback);
+    pack.WriteFloat(GetEngineTime());
     pack.Reset();
 
     // sql PROCEDURE

@@ -212,7 +212,7 @@ public void SellItemCallback(Database db, DBResultSet results, const char[] erro
     }
     
     if(processed >= 1.5)
-        LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_msg.log", "SellItemCallback -> Processed in %f seconds -> %N -> %s -> %d", processed, clien, unique, price);
+        LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_msg.log", "SellItemCallback -> Processed in %f seconds -> %N -> %s -> %d", processed, client, unique, price);
 }
 
 public void QueryNoCallback(Database db, DBResultSet results, const char[] error, DataPack pack)

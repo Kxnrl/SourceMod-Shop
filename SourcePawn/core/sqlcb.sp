@@ -104,7 +104,7 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
     if(results == null || error[0])
     {
         LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "BuyItemCallback -> SQL Error:  %s -> %N -> %d -> %s -> %d", error, client, cost, unique, length);
-        Chat("购买发生异常, 错误代码\x07Code\x01:\x02000");
+        Chat(client, "购买发生异常, 错误代码\x07Code\x01:\x02000");
         DisplayItem(client, itemid);
         return;
     }
@@ -112,7 +112,7 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
     if(!results.FetchRow())
     {
         LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "BuyItemCallback -> SQL Error:  Can not fetch row -> %N -> %d -> %s -> %d", client, cost, unique, length);
-        Chat("购买发生异常, 错误代码\x07Code\x01:\x02001");
+        Chat(client, "购买发生异常, 错误代码\x07Code\x01:\x02001");
         DisplayItem(client, itemid);
         return;
     }
@@ -123,7 +123,7 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
     if(dbIndex <= 0)
     {
         LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_err.log", "BuyItemCallback -> SQL Error:  dbIndex [%d] -> %N -> %d -> %s -> %d", dbIndex, client, cost, unique, length);
-        Chat("购买发生异常, 错误代码\x07Code\x01:\x02002");
+        Chat(client, "购买发生异常, 错误代码\x07Code\x01:\x02002");
         DisplayItem(client, itemid);
         return;
     }
@@ -157,7 +157,7 @@ public void BuyItemCallback(Database db, DBResultSet results, const char[] error
     
     Chat(client, "您花费了\x04%dG\x01购买了[\x10%s\x01]", cost, g_Items[g_ClientItem[client][items][iItemIndex]][szFullName]);
 
-    if(processed >= 0.5)
+    if(processed >= 1.5)
         LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_msg.log", "BuyItemCallback -> Processed in %f seconds -> dbIndex [%d] -> %N -> %d -> %s -> %d", processed, dbIndex, client, cost, unique, length);
 }
 
@@ -211,8 +211,8 @@ public void SellItemCallback(Database db, DBResultSet results, const char[] erro
         Call_Finish();
     }
     
-    if(processed >= 0.5)
-        LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_msg.log", "SellItemCallback -> Processed in %f seconds -> dbIndex [%d] -> %N -> %d -> %s -> %d", processed, dbIndex, client, cost, unique, length);
+    if(processed >= 1.5)
+        LogToFileEx("addons/sourcemod/logs/MagicGirl.Net/Shop_msg.log", "SellItemCallback -> Processed in %f seconds -> %N -> %s -> %d", processed, clien, unique, price);
 }
 
 public void QueryNoCallback(Database db, DBResultSet results, const char[] error, DataPack pack)

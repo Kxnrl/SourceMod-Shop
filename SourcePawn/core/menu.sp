@@ -63,6 +63,7 @@ void DisplayShopMenu(int client, bool invMode, int parent = -1, int lastItem = -
 
     if(parent != -1)
     {
+        iMenuLevels[client] = 2;
         menu.SetTitle("%s - %s\n余额: %d G\n ", invMode ? "商店" : "库存", g_Items[parent][szShortName], g_ClientData[client][iMoney]);
         iMenuParent[client] = g_Items[parent][iParent];
     }

@@ -101,12 +101,6 @@ Database g_MySQL;
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-    if(late)
-    {
-        strcopy(error, err_max, "Late load this plugin is not allowed.");
-        return APLRes_Failure;
-    }
-
     Native_AskPluginLoad2();
 
     RegPluginLibrary("shop-core");

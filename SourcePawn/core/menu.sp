@@ -25,7 +25,7 @@ void DisplayMainMenu(int client)
 
     Menu menu = new Menu(MenuHandler_MainMenu);
     
-    menu.SetTitle("商店 - 主菜单\n余额: %d G", g_ClientData[client][iMoney]);
+    menu.SetTitle("商店 - 主菜单\n余额: %d G\n \n 当前商店开启白嫖模式\n ", g_ClientData[client][iMoney]);
     
     menu.AddItem("code:002", "商店");
     menu.AddItem("code:016", "库存");
@@ -34,6 +34,8 @@ void DisplayMainMenu(int client)
     menu.ExitBackButton = false;
 
     menu.Display(client, 15);
+    
+    Chat(client, "\x04当前商店所有物品免费...");
 }
 
 public int MenuHandler_MainMenu(Menu menu, MenuAction action, int param1, int param2)
@@ -60,17 +62,15 @@ void DisplayShopMenu(int client, bool invMode, int parent = -1, int lastItem = -
     
     menu.ExitButton = true;
     menu.ExitBackButton = true;
-    
-    Chat(client, "\x04当前商店所有物品免费...");
 
     if(parent != -1)
     {
         iMenuLevels[client] = 2;
-        menu.SetTitle("%s - %s\n余额: %d G\n ", invMode ? "商店" : "库存", g_Items[parent][szShortName], g_ClientData[client][iMoney]);
+        menu.SetTitle("%s - %s\n余额: %d G\n ", !invMode ? "商店" : "库存", g_Items[parent][szShortName], g_ClientData[client][iMoney]);
         iMenuParent[client] = g_Items[parent][iParent];
     }
     else
-        menu.SetTitle("%s - 总览\n余额: %d G\n \n 当前商店开启白嫖模式\n ", invMode ? "商店" : "库存", g_ClientData[client][iMoney]);
+        menu.SetTitle("%s - 总览\n余额: %d G\n ", !invMode ? "商店" : "库存", g_ClientData[client][iMoney]);
 
     for(int item = 0; item < g_iItems; ++item)
     {

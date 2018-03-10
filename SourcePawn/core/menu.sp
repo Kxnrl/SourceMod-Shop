@@ -60,6 +60,8 @@ void DisplayShopMenu(int client, bool invMode, int parent = -1, int lastItem = -
     
     menu.ExitButton = true;
     menu.ExitBackButton = true;
+    
+    Chat(client, "\x04当前商店所有物品免费...");
 
     if(parent != -1)
     {
@@ -68,7 +70,7 @@ void DisplayShopMenu(int client, bool invMode, int parent = -1, int lastItem = -
         iMenuParent[client] = g_Items[parent][iParent];
     }
     else
-        menu.SetTitle("%s - 总览\n余额: %d G\n ", invMode ? "商店" : "库存", g_ClientData[client][iMoney]);
+        menu.SetTitle("%s - 总览\n余额: %d G\n \n 当前商店开启白嫖模式\n ", invMode ? "商店" : "库存", g_ClientData[client][iMoney]);
 
     for(int item = 0; item < g_iItems; ++item)
     {

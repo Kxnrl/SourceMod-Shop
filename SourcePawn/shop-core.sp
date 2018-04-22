@@ -10,7 +10,7 @@
 /*  Copyright (C) 2018  Kyle                                      */
 /*  2017/01/31 20:40:02                                           */
 /*                                                                */
-/*  This code is licensed under the Apache License.               */
+/*  This code is licensed under the GPLv3 License.                */
 /*                                                                */
 /******************************************************************/
 
